@@ -20,10 +20,10 @@ export default function ShareModal({ book, onClose, onNotify }) {
     try {
       await copyToClipboard(shareUrl);
       setCopied(true);
-      onNotify?.('تم نسخ رابط القصة بنجاح!', 'success');
+      onNotify?.('Story link copied to clipboard!', 'success');
       setTimeout(() => setCopied(false), 2500);
     } catch (err) {
-      onNotify?.(err.message || 'تعذر نسخ الرابط.', 'error');
+      onNotify?.(err.message || 'Could not copy the link.', 'error');
     }
   };
 
@@ -36,7 +36,7 @@ export default function ShareModal({ book, onClose, onNotify }) {
       });
     } catch (err) {
       if (err?.name !== 'AbortError') {
-        onNotify?.('تعذر فتح نافذة المشاركة الأصلية، يمكنك نسخ الرابط مباشرة.', 'error');
+        onNotify?.('Native share dialog could not open. You can copy the link instead.', 'error');
       }
     }
   };
@@ -45,17 +45,17 @@ export default function ShareModal({ book, onClose, onNotify }) {
     <div className="modal-backdrop" onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="share-modal-title">
       <div className="modal-card" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h3 id="share-modal-title">مشاركة القصة مع الطلبة</h3>
-          <button type="button" className="btn-icon" onClick={onClose} aria-label="إغلاق">
+          <h3 id="share-modal-title">Share Story with Students</h3>
+          <button type="button" className="btn-icon" onClick={onClose} aria-label="Close">
             <X size={18} />
           </button>
         </div>
 
         <p className="modal-subtitle">
-          يمكن للطلبة فتح الرابط مباشرة وقراءة القصة وحل الاختبار دون تسجيل دخول:
+          Students can open this link directly to read, listen, and complete the Quick Check quiz with no login required:
         </p>
 
-        <div className="share-book-title" dir="ltr" lang="en">
+        <div className="share-book-title">
           {book.title}
         </div>
 
@@ -64,13 +64,12 @@ export default function ShareModal({ book, onClose, onNotify }) {
             type="text"
             readOnly
             value={shareUrl}
-            dir="ltr"
-            aria-label="رابط القصة"
+            aria-label="Story link"
             onFocus={(e) => e.target.select()}
           />
           <button type="button" className="btn btn-primary btn-sm" onClick={handleCopy}>
             {copied ? <Check size={16} /> : <Copy size={16} />}
-            <span>{copied ? 'تم النسخ' : 'نسخ الرابط'}</span>
+            <span>{copied ? 'Copied' : 'Copy Link'}</span>
           </button>
         </div>
 
@@ -82,13 +81,13 @@ export default function ShareModal({ book, onClose, onNotify }) {
             className="btn btn-whatsapp"
           >
             <MessageCircle size={18} />
-            <span>مشاركة عبر واتساب</span>
+            <span>Share on WhatsApp</span>
           </a>
 
           {supportsNativeShare && (
             <button type="button" className="btn btn-outline" onClick={handleNativeShare}>
               <Share2 size={18} />
-              <span>مشاركة عبر التطبيقات</span>
+              <span>Share via Apps</span>
             </button>
           )}
         </div>

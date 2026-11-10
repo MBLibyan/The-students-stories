@@ -25,8 +25,8 @@ export default function FlipbookViewer({ book }) {
   const flipHostRef = useRef(null);
   const pageFlipRef = useRef(null);
   const pdfDocRef = useRef(null);
-  const pageSlotsRef = useRef(new Map()); // pdfPageNum -> HTMLElement slot
-  const renderedUrlsRef = useRef(new Map()); // pdfPageNum -> objectUrl
+  const pageSlotsRef = useRef(new Map());
+  const renderedUrlsRef = useRef(new Map());
   const renderQueueRunningRef = useRef(false);
   const renderTokenRef = useRef(0);
 
@@ -38,22 +38,20 @@ export default function FlipbookViewer({ book }) {
   const [quizPortalTarget, setQuizPortalTarget] = useState(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
-  // Build ordered page layout:
-  // Front cover -> (optional flyleaf when PDF page count is even, keeping back cover standalone) -> Story PDF pages -> Quick Check quiz -> Back cover
   const bookPages = useMemo(() => {
     if (numPages <= 0) return [];
-    const pages = [{ kind: 'front-cover', label: 'الغلاف الأمامي' }];
+    const pages = [{ kind: 'front-cover', label: 'Front Cover' }];
 
     if (numPages % 2 === 0) {
-      pages.push({ kind: 'flyleaf', label: 'مقدمة القصة' });
+      pages.push({ kind: 'flyleaf', label: 'Story Overview' });
     }
 
     for (let p = 1; p <= numPages; p += 1) {
-      pages.push({ kind: 'pdf', pdfPage: p, label: `صفحة ${p} من ${numPages}` });
+      pages.push({ kind: 'pdf', pdfPage: p, label: `Page ${p} of ${numPages}` });
     }
 
-    pages.push({ kind: 'quiz', label: 'الاختبار السريع' });
-    pages.push({ kind: 'back-cover', label: 'الغلاف الخلفي' });
+    pages.push({ kind: 'quiz', label: 'Quick Check' });
+    pages.push({ kind: 'back-cover', label: 'Back Cover' });
     return pages;
   }, [numPages]);
 
@@ -62,7 +60,6 @@ export default function FlipbookViewer({ book }) {
     [bookPages]
   );
 
-  // Helper to update a PDF page's DOM node smoothly without touching React reconciliation
   const paintPdfSlot = (pdfPageNum, objectUrl) => {
     const slot = pageSlotsRef.current.get(pdfPageNum);
     if (!slot) return;
@@ -83,15 +80,14 @@ export default function FlipbookViewer({ book }) {
       slot.appendChild(footer);
     } else {
       slot.innerHTML = `
-        <div class="flip-page-skeleton" dir="rtl">
+        <div class="flip-page-skeleton">
           <div class="skeleton-spinner"></div>
-          <span>جاري تجهيز صفحة ${pdfPageNum}...</span>
+          <span>Loading page ${pdfPageNum}...</span>
         </div>
       `;
     }
   };
 
-  // Lazy-render a sliding window of PDF pages around the active flip index
   const scheduleLazyWindow = async (activeFlipIdx, token) => {
     const pdfDoc = pdfDocRef.current;
     if (!pdfDoc || bookPages.length === 0 || renderQueueRunningRef.current) return;
@@ -105,7 +101,6 @@ export default function FlipbookViewer({ book }) {
         const targetStart = Math.max(0, activeFlipIdx - WINDOW_BEFORE);
         const targetEnd = Math.min(bookPages.length - 1, activeFlipIdx + WINDOW_AFTER);
 
-        // Prioritize the currently visible page(s) first, then lookahead, then lookbehind
         const candidates = [];
         for (let idx = activeFlipIdx; idx <= targetEnd; idx += 1) candidates.push(idx);
         for (let idx = activeFlipIdx - 1; idx >= targetStart; idx -= 1) candidates.push(idx);
@@ -133,7 +128,6 @@ export default function FlipbookViewer({ book }) {
           renderedUrlsRef.current.set(pageToRender, url);
           paintPdfSlot(pageToRender, url);
 
-          // Evict distant pages on large PDFs to keep mobile RAM low
           if (numPages > MAX_CACHED_PAGES && renderedUrlsRef.current.size > MAX_CACHED_PAGES) {
             const currentEntry = bookPages[activeFlipIdx];
             const approxPdfPage =
@@ -152,10 +146,9 @@ export default function FlipbookViewer({ book }) {
             }
           }
         } catch {
-          // Leave placeholder error cleanly without crashing whole viewer
           const slot = pageSlotsRef.current.get(pageToRender);
           if (slot) {
-            slot.innerHTML = `<div class="flip-page-skeleton" dir="rtl"><span>تعذر عرض الصفحة ${pageToRender}</span></div>`;
+            slot.innerHTML = `<div class="flip-page-skeleton"><span>Unable to render page ${pageToRender}</span></div>`;
           }
           break;
         }
@@ -165,7 +158,6 @@ export default function FlipbookViewer({ book }) {
     }
   };
 
-  // Load PDF document when book.pdf_url changes
   const loadDocument = async () => {
     renderTokenRef.current += 1;
     const token = renderTokenRef.current;
@@ -210,7 +202,7 @@ export default function FlipbookViewer({ book }) {
     } catch {
       if (renderTokenRef.current === token) {
         setPdfStatus('error');
-        setPdfError('تعذر تحميل ملف القصة PDF. يرجى التأكد من اتصال الإنترنت والمحاولة مرة أخرى.');
+        setPdfError('Failed to load the story PDF. Please check your internet connection and try again.');
       }
     }
   };
@@ -232,7 +224,6 @@ export default function FlipbookViewer({ book }) {
     };
   }, [book?.pdf_url]);
 
-  // Mount imperative StPageFlip instance once bookPages are ready
   useEffect(() => {
     if (pdfStatus !== 'ready' || bookPages.length === 0 || !flipHostRef.current) return;
 
@@ -266,7 +257,7 @@ export default function FlipbookViewer({ book }) {
           pageEl.appendChild(img);
         } else {
           pageEl.innerHTML = `
-            <div class="flip-fallback-cover flip-fallback-front" dir="ltr" lang="en">
+            <div class="flip-fallback-cover flip-fallback-front">
               <span class="cover-eyebrow">UNIVERSITY ENGLISH DEPARTMENT</span>
               <h2>${escapeHtml(book.title)}</h2>
               <div class="cover-rule"></div>
@@ -277,7 +268,7 @@ export default function FlipbookViewer({ book }) {
         }
       } else if (entry.kind === 'flyleaf') {
         pageEl.innerHTML = `
-          <div class="flip-flyleaf" dir="ltr" lang="en">
+          <div class="flip-flyleaf">
             <span class="flyleaf-label">EX LIBRIS • STORY OVERVIEW</span>
             <h3>${escapeHtml(book.title)}</h3>
             <p>${escapeHtml(book.description || 'Turn the page to begin reading the story.')}</p>
@@ -302,7 +293,7 @@ export default function FlipbookViewer({ book }) {
           pageEl.appendChild(img);
         } else {
           pageEl.innerHTML = `
-            <div class="flip-fallback-cover flip-fallback-back" dir="ltr" lang="en">
+            <div class="flip-fallback-cover flip-fallback-back">
               <span class="cover-eyebrow">THE END</span>
               <h3>${escapeHtml(book.title)}</h3>
               <div class="cover-rule"></div>
@@ -352,7 +343,6 @@ export default function FlipbookViewer({ book }) {
     pageFlip.loadFromHTML(elements);
     pageFlipRef.current = pageFlip;
 
-    // Also kick off initial window render immediately
     scheduleLazyWindow(0, renderTokenRef.current);
 
     return () => {
@@ -368,7 +358,6 @@ export default function FlipbookViewer({ book }) {
     };
   }, [pdfStatus, bookPages, aspectRatio, book?.cover_front_url, book?.cover_back_url, book?.title, book?.description]);
 
-  // Listen to browser fullscreen change + Escape key for CSS fallback fullscreen
   useEffect(() => {
     const onFsChange = () => {
       const activeEl = document.fullscreenElement || document.webkitFullscreenElement;
@@ -408,7 +397,6 @@ export default function FlipbookViewer({ book }) {
           shell.webkitRequestFullscreen();
           setIsFullscreen(true);
         } else {
-          // iOS Safari / embedded WebView fallback
           setIsFullscreen(true);
         }
       } else {
@@ -450,9 +438,8 @@ export default function FlipbookViewer({ book }) {
     <section
       ref={viewerShellRef}
       className={`flipbook-shell ${isFullscreen ? 'is-fullscreen' : ''}`}
-      aria-label="عارض القصة التفاعلي"
+      aria-label="Interactive storybook viewer"
     >
-      {/* Controls Bar */}
       <div className="flipbook-controls-bar">
         <div className="flipbook-nav-group">
           <button
@@ -461,12 +448,12 @@ export default function FlipbookViewer({ book }) {
             onClick={handleFlipPrev}
             disabled={pdfStatus !== 'ready' || currentFlipIndex <= 0}
           >
-            <ChevronRight size={17} />
-            <span>السابق</span>
+            <ChevronLeft size={17} />
+            <span>Previous</span>
           </button>
 
           <span className="flipbook-page-status" aria-live="polite">
-            {pdfStatus === 'ready' ? activeLabel : 'جاري التحميل...'}
+            {pdfStatus === 'ready' ? activeLabel : 'Loading...'}
           </span>
 
           <button
@@ -475,8 +462,8 @@ export default function FlipbookViewer({ book }) {
             onClick={handleFlipNext}
             disabled={pdfStatus !== 'ready' || currentFlipIndex >= bookPages.length - 1}
           >
-            <span>التالي</span>
-            <ChevronLeft size={17} />
+            <span>Next</span>
+            <ChevronRight size={17} />
           </button>
         </div>
 
@@ -487,10 +474,10 @@ export default function FlipbookViewer({ book }) {
                 type="button"
                 className="btn btn-ghost btn-sm"
                 onClick={handleJumpToStart}
-                title="العودة إلى الغلاف الأمامي"
+                title="Jump to Front Cover"
               >
                 <BookOpen size={16} />
-                <span className="hide-xs">الغلاف</span>
+                <span className="hide-xs">Cover</span>
               </button>
 
               {quizFlipIndex >= 0 && (
@@ -498,10 +485,10 @@ export default function FlipbookViewer({ book }) {
                   type="button"
                   className="btn btn-accent btn-sm"
                   onClick={handleJumpToQuiz}
-                  title="الانتقال إلى صفحة الاختبار السريع"
+                  title="Jump to Quick Check Quiz"
                 >
                   <Sparkles size={16} />
-                  <span>الاختبار السريع</span>
+                  <span>Quick Check</span>
                 </button>
               )}
             </>
@@ -511,21 +498,20 @@ export default function FlipbookViewer({ book }) {
             type="button"
             className="btn btn-outline btn-sm"
             onClick={toggleFullscreen}
-            aria-label={isFullscreen ? 'إنهاء عرض ملء الشاشة' : 'عرض ملء الشاشة'}
-            title={isFullscreen ? 'تصغير' : 'عرض ملء الشاشة'}
+            aria-label={isFullscreen ? 'Exit Fullscreen' : 'View Fullscreen'}
+            title={isFullscreen ? 'Exit Fullscreen' : 'View Fullscreen'}
           >
             {isFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
-            <span>{isFullscreen ? 'إنهاء ملء الشاشة' : 'عرض ملء الشاشة'}</span>
+            <span>{isFullscreen ? 'Exit Fullscreen' : 'View Fullscreen'}</span>
           </button>
         </div>
       </div>
 
-      {/* Book Stage */}
       <div className="flipbook-stage">
         {pdfStatus === 'loading' && (
           <div className="flipbook-state-box">
             <Loader2 size={34} className="spin" />
-            <p>جاري فتح القصة وتجهيز صفحات الكتاب...</p>
+            <p>Opening the story and preparing flipbook pages...</p>
           </div>
         )}
 
@@ -535,7 +521,7 @@ export default function FlipbookViewer({ book }) {
             <p>{pdfError}</p>
             <button type="button" className="btn btn-primary btn-sm" onClick={loadDocument}>
               <RotateCcw size={16} />
-              <span>إعادة المحاولة</span>
+              <span>Try Again</span>
             </button>
           </div>
         )}
@@ -551,7 +537,7 @@ export default function FlipbookViewer({ book }) {
 
       {pdfStatus === 'ready' && (
         <p className="flipbook-gesture-hint">
-          اسحب الصفحة يميناً أو يساراً للتقليب، أو استخدم أزرار التنقل ولوحة المفاتيح.
+          Swipe left or right to flip pages, or use the navigation buttons and arrow keys.
         </p>
       )}
 

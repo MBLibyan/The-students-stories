@@ -1,9 +1,9 @@
 {
-  "name": "Storybook Flipbook — قصص القراءة التفاعلية",
+  "name": "Storybook Flipbook — Interactive Reading Library",
   "short_name": "Storybook",
-  "description": "منصة القصص الإنجليزية التفاعلية بتقنية تقليب الصفحات مع الاستماع الصوتي واختبارات الفهم والاستنتاج لطلبة الجامعة.",
-  "lang": "ar",
-  "dir": "rtl",
+  "description": "Interactive English storybook flipbook platform with audio narration and comprehension quizzes for university English-department students.",
+  "lang": "en",
+  "dir": "ltr",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

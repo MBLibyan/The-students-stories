@@ -113,51 +113,50 @@ export default function QuestionBuilder({ questions, onChange }) {
         <div>
           <h3>
             <HelpCircle size={18} />
-            <span>أسئلة الاختبار السريع (Quick Check)</span>
+            <span>Quick Check Quiz Questions</span>
           </h3>
           <p className="muted">
-            أضف أسئلة فهم واستنتاج باللغة الإنجليزية لتظهر في الصفحة الأخيرة من الكتاب.
+            Add comprehension and inference questions to appear on the final quiz page before the back cover.
           </p>
         </div>
-        <span className="count-badge">{questions.length} سؤال</span>
+        <span className="count-badge">
+          {questions.length} {questions.length === 1 ? 'Question' : 'Questions'}
+        </span>
       </div>
 
-      {/* Question Editor Card */}
       <div className="qb-form-card">
         <div className="qb-form-header">
           <strong>
             {editingIndex !== null
-              ? `تعديل السؤال رقم ${editingIndex + 1}`
-              : 'إضافة سؤال جديد'}
+              ? `Edit Question #${editingIndex + 1}`
+              : 'Add New Question'}
           </strong>
           {editingIndex !== null && (
             <button type="button" className="btn btn-ghost btn-sm" onClick={resetDraft}>
               <X size={15} />
-              <span>إلغاء التعديل</span>
+              <span>Cancel Edit</span>
             </button>
           )}
         </div>
 
         <div className="form-grid">
           <div className="field">
-            <label htmlFor="q-type">نوع السؤال</label>
+            <label htmlFor="q-type">Question Type</label>
             <select
               id="q-type"
               value={draft.type}
               onChange={(e) => setDraft((p) => ({ ...p, type: e.target.value }))}
             >
-              <option value="multiple_choice">اختيار من متعدد (Multiple Choice)</option>
-              <option value="inference">سؤال استنتاجي (Inference)</option>
+              <option value="multiple_choice">Multiple Choice</option>
+              <option value="inference">Inference Question</option>
             </select>
           </div>
 
           <div className="field">
-            <label htmlFor="q-text">نص السؤال (باللغة الإنجليزية)</label>
+            <label htmlFor="q-text">Question Text</label>
             <textarea
               id="q-text"
               rows={2}
-              dir="ltr"
-              lang="en"
               placeholder="e.g., Why does the harbour-keeper keep the small brass lantern lit?"
               value={draft.question}
               onChange={(e) => setDraft((p) => ({ ...p, question: e.target.value }))}
@@ -165,14 +164,14 @@ export default function QuestionBuilder({ questions, onChange }) {
           </div>
 
           <div className="field">
-            <span className="field-label">الخيارات الأربعة (حدد الإجابة الصحيحة)</span>
+            <span className="field-label">Four Answer Options (Select the correct answer)</span>
             <div className="qb-options-grid">
               {OPTION_LETTERS.map((letter, idx) => (
                 <div
                   key={letter}
                   className={`qb-option-row ${draft.correct_index === idx ? 'is-correct-choice' : ''}`}
                 >
-                  <label className="qb-radio-label" title={`تعيين الخيار ${letter} كإجابة صحيحة`}>
+                  <label className="qb-radio-label" title={`Mark option ${letter} as correct`}>
                     <input
                       type="radio"
                       name="correct-option-radio"
@@ -183,8 +182,6 @@ export default function QuestionBuilder({ questions, onChange }) {
                   </label>
                   <input
                     type="text"
-                    dir="ltr"
-                    lang="en"
                     placeholder={`Option ${letter}`}
                     aria-label={`Option ${letter}`}
                     value={draft.options[idx]}
@@ -196,12 +193,10 @@ export default function QuestionBuilder({ questions, onChange }) {
           </div>
 
           <div className="field">
-            <label htmlFor="q-explanation">تفسير الإجابة (اختياري — يظهر للطالب بعد الإجابة)</label>
+            <label htmlFor="q-explanation">Answer Explanation (Optional — shown after student answers)</label>
             <textarea
               id="q-explanation"
               rows={2}
-              dir="ltr"
-              lang="en"
               placeholder="Optional explanation referencing evidence from the story..."
               value={draft.explanation}
               onChange={(e) => setDraft((p) => ({ ...p, explanation: e.target.value }))}
@@ -222,15 +217,14 @@ export default function QuestionBuilder({ questions, onChange }) {
             onClick={handleSaveQuestion}
           >
             {editingIndex !== null ? <Check size={16} /> : <Plus size={16} />}
-            <span>{editingIndex !== null ? 'حفظ التعديلات على السؤال' : 'إضافة السؤال إلى القائمة'}</span>
+            <span>{editingIndex !== null ? 'Save Question Changes' : 'Add Question to List'}</span>
           </button>
         </div>
       </div>
 
-      {/* Added Questions List */}
       {questions.length === 0 ? (
         <div className="qb-empty">
-          لم تتم إضافة أي أسئلة بعد. يمكنك إضافة أسئلة الآن أو حفظ القصة وإضافتها لاحقاً.
+          No questions added yet. Add questions above or save the book and add them later.
         </div>
       ) : (
         <ol className="qb-list">
@@ -239,7 +233,7 @@ export default function QuestionBuilder({ questions, onChange }) {
               key={q.id || `draft-q-${idx}`}
               className={`qb-item ${editingIndex === idx ? 'is-editing' : ''}`}
             >
-              <div className="qb-item-content" dir="ltr" lang="en">
+              <div className="qb-item-content">
                 <div className="qb-item-badges">
                   <span className="qb-pos-badge">Q{idx + 1}</span>
                   <span className={`quiz-type-badge ${q.type === 'inference' ? 'inference' : 'mc'}`}>
@@ -252,14 +246,14 @@ export default function QuestionBuilder({ questions, onChange }) {
                 </div>
               </div>
 
-              <div className="qb-item-actions" aria-label={`التحكم بالسؤال ${idx + 1}`}>
+              <div className="qb-item-actions" aria-label={`Manage question ${idx + 1}`}>
                 <button
                   type="button"
                   className="btn-icon"
                   disabled={idx === 0}
                   onClick={() => handleMove(idx, -1)}
-                  title="تحريك لأعلى"
-                  aria-label="تحريك لأعلى"
+                  title="Move up"
+                  aria-label="Move up"
                 >
                   <ArrowUp size={16} />
                 </button>
@@ -268,8 +262,8 @@ export default function QuestionBuilder({ questions, onChange }) {
                   className="btn-icon"
                   disabled={idx === questions.length - 1}
                   onClick={() => handleMove(idx, 1)}
-                  title="تحريك لأسفل"
-                  aria-label="تحريك لأسفل"
+                  title="Move down"
+                  aria-label="Move down"
                 >
                   <ArrowDown size={16} />
                 </button>
@@ -277,8 +271,8 @@ export default function QuestionBuilder({ questions, onChange }) {
                   type="button"
                   className="btn-icon"
                   onClick={() => handleEdit(idx)}
-                  title="تعديل السؤال"
-                  aria-label="تعديل السؤال"
+                  title="Edit question"
+                  aria-label="Edit question"
                 >
                   <Pencil size={16} />
                 </button>
@@ -286,8 +280,8 @@ export default function QuestionBuilder({ questions, onChange }) {
                   type="button"
                   className="btn-icon danger"
                   onClick={() => handleDelete(idx)}
-                  title="حذف السؤال"
-                  aria-label="حذف السؤال"
+                  title="Delete question"
+                  aria-label="Delete question"
                 >
                   <Trash2 size={16} />
                 </button>

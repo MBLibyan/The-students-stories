@@ -34,9 +34,9 @@ export default function AudioPlayerBar({ audioUrl, title }) {
 
   if (!audioUrl) {
     return (
-      <div className="audio-bar audio-bar-empty" aria-label="مشغل الصوت">
+      <div className="audio-bar audio-bar-empty" aria-label="Audio player">
         <Volume2 size={18} />
-        <span>لا يوجد ملف صوتي مرفق لهذه القصة حالياً.</span>
+        <span>No audio narration is attached to this story yet.</span>
       </div>
     );
   }
@@ -58,7 +58,7 @@ export default function AudioPlayerBar({ audioUrl, title }) {
       setIsPlaying(true);
     } catch {
       setIsPlaying(false);
-      setErrorMsg('تعذر تشغيل الصوت. تحقق من الاتصال أو صيغة الملف الصوتي.');
+      setErrorMsg('Unable to play audio. Please check your connection or audio format.');
     }
   };
 
@@ -78,7 +78,7 @@ export default function AudioPlayerBar({ audioUrl, title }) {
   };
 
   return (
-    <div className="audio-bar" aria-label={`مشغل صوت القصة: ${title || ''}`}>
+    <div className="audio-bar" aria-label={`Audio player for ${title || 'story'}`}>
       <audio
         ref={audioRef}
         src={audioUrl}
@@ -106,7 +106,7 @@ export default function AudioPlayerBar({ audioUrl, title }) {
         onError={() => {
           setIsPlaying(false);
           setIsBuffering(false);
-          setErrorMsg('تعذر تحميل الملف الصوتي الخاص بهذه القصة.');
+          setErrorMsg('Failed to load the audio narration for this story.');
         }}
       />
 
@@ -115,8 +115,8 @@ export default function AudioPlayerBar({ audioUrl, title }) {
           type="button"
           className="btn-audio-play"
           onClick={togglePlay}
-          aria-label={isPlaying ? 'إيقاف الصوت مؤقتاً' : 'تشغيل الصوت'}
-          title={isPlaying ? 'إيقاف مؤقت' : 'تشغيل'}
+          aria-label={isPlaying ? 'Pause audio' : 'Play audio'}
+          title={isPlaying ? 'Pause' : 'Play'}
         >
           {isBuffering ? (
             <Loader2 size={20} className="spin" />
@@ -131,9 +131,9 @@ export default function AudioPlayerBar({ audioUrl, title }) {
           <div className="audio-meta-row">
             <span className="audio-label">
               <Volume2 size={15} />
-              <span>الاستماع للقصة</span>
+              <span>Listen to Story</span>
             </span>
-            <span className="audio-time" dir="ltr">
+            <span className="audio-time">
               {formatTime(currentTime)} / {formatTime(duration)}
             </span>
           </div>
@@ -141,18 +141,17 @@ export default function AudioPlayerBar({ audioUrl, title }) {
           <input
             type="range"
             className="audio-seek"
-            dir="ltr"
             min={0}
             max={duration || 100}
             step={0.1}
             value={Math.min(currentTime, duration || 100)}
             disabled={!duration}
             onChange={handleSeek}
-            aria-label="شريط تقديم وتأخير الصوت"
+            aria-label="Seek audio position"
           />
         </div>
 
-        <div className="audio-speed-group" role="group" aria-label="سرعة التشغيل">
+        <div className="audio-speed-group" role="group" aria-label="Playback speed">
           {SPEEDS.map((s) => (
             <button
               key={s}
@@ -160,7 +159,6 @@ export default function AudioPlayerBar({ audioUrl, title }) {
               className={`speed-pill ${speed === s ? 'active' : ''}`}
               onClick={() => handleSpeedChange(s)}
               aria-pressed={speed === s}
-              dir="ltr"
             >
               {s}x
             </button>

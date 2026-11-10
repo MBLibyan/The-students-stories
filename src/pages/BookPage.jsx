@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import {
-  ArrowRight,
-  Download,
+  ArrowLeft,
   Share2,
   Headphones,
   FileDown,
@@ -40,7 +39,7 @@ export default function BookPage({ onNotify }) {
       const data = await getBookWithQuestions(id);
       setBook(data);
     } catch (err) {
-      setError(err.message || 'تعذر العثور على القصة المطلوبة.');
+      setError(err.message || 'Unable to find the requested story.');
     } finally {
       setLoading(false);
     }
@@ -55,9 +54,9 @@ export default function BookPage({ onNotify }) {
     setDownloading('pdf');
     try {
       await triggerFileDownload(book.pdf_url, makeSafeFilename(book.title, 'pdf'));
-      onNotify?.('بدأ تحميل ملف القصة PDF.', 'success');
+      onNotify?.('Downloading story PDF...', 'success');
     } catch {
-      onNotify?.('تعذر تحميل ملف PDF.', 'error');
+      onNotify?.('Unable to download the PDF file.', 'error');
     } finally {
       setDownloading('');
     }
@@ -70,9 +69,9 @@ export default function BookPage({ onNotify }) {
       const extMatch = book.audio_url.match(/\.(mp3|m4a|wav|ogg|aac)(\?|$)/i);
       const ext = extMatch ? extMatch[1].toLowerCase() : 'mp3';
       await triggerFileDownload(book.audio_url, makeSafeFilename(book.title, ext));
-      onNotify?.('بدأ تحميل الملف الصوتي.', 'success');
+      onNotify?.('Downloading audio narration...', 'success');
     } catch {
-      onNotify?.('تعذر تحميل الملف الصوتي.', 'error');
+      onNotify?.('Unable to download the audio file.', 'error');
     } finally {
       setDownloading('');
     }
@@ -83,7 +82,7 @@ export default function BookPage({ onNotify }) {
       <main className="page-container container">
         <div className="state-panel">
           <Loader2 size={32} className="spin" />
-          <p>جاري تحميل القصة وبيانات الاختبار...</p>
+          <p>Loading story and quiz questions...</p>
         </div>
       </main>
     );
@@ -94,16 +93,16 @@ export default function BookPage({ onNotify }) {
       <main className="page-container container">
         <div className="state-panel error" role="alert">
           <AlertCircle size={36} />
-          <h2>تعذر فتح القصة</h2>
-          <p>{error || 'الرابط غير صحيح أو تم حذف هذه القصة.'}</p>
+          <h2>Unable to Open Story</h2>
+          <p>{error || 'The link may be invalid or this story has been removed.'}</p>
           <div className="state-actions">
             <button type="button" className="btn btn-primary btn-sm" onClick={loadBook}>
               <RotateCcw size={16} />
-              <span>إعادة المحاولة</span>
+              <span>Try Again</span>
             </button>
             <Link to="/" className="btn btn-outline btn-sm">
-              <ArrowRight size={16} />
-              <span>العودة للمكتبة</span>
+              <ArrowLeft size={16} />
+              <span>Back to Library</span>
             </Link>
           </div>
         </div>
@@ -113,21 +112,14 @@ export default function BookPage({ onNotify }) {
 
   return (
     <main className="page-container container book-viewer-page">
-      {/* Book Info & Action Bar */}
       <div className="viewer-header-card">
         <div className="viewer-header-info">
           <Link to="/" className="back-link">
-            <ArrowRight size={16} />
-            <span>العودة إلى المكتبة</span>
+            <ArrowLeft size={16} />
+            <span>Back to Library</span>
           </Link>
-          <h1 dir="ltr" lang="en">
-            {book.title}
-          </h1>
-          {book.description && (
-            <p className="viewer-desc" dir="ltr" lang="en">
-              {book.description}
-            </p>
-          )}
+          <h1>{book.title}</h1>
+          {book.description && <p className="viewer-desc">{book.description}</p>}
         </div>
 
         <div className="viewer-header-actions">
@@ -142,7 +134,7 @@ export default function BookPage({ onNotify }) {
             ) : (
               <FileDown size={16} />
             )}
-            <span>تحميل القصة (PDF)</span>
+            <span>Download PDF</span>
           </button>
 
           {book.audio_url && (
@@ -157,7 +149,7 @@ export default function BookPage({ onNotify }) {
               ) : (
                 <Headphones size={16} />
               )}
-              <span>تحميل الصوت</span>
+              <span>Download Audio</span>
             </button>
           )}
 
@@ -167,15 +159,13 @@ export default function BookPage({ onNotify }) {
             onClick={() => setShareOpen(true)}
           >
             <Share2 size={16} />
-            <span>مشاركة</span>
+            <span>Share</span>
           </button>
         </div>
       </div>
 
-      {/* Audio Bar */}
       <AudioPlayerBar audioUrl={book.audio_url} title={book.title} />
 
-      {/* Interactive Flipbook */}
       <FlipbookViewer book={book} />
 
       {shareOpen && (

@@ -1,18 +1,15 @@
-# مشروع Android WebView لتطبيق Storybook Flipbook
+# Android WebView Wrapper — Storybook Flipbook
 
-هذا المجلد يحتوي على مشروع أندرويد خفيف جاهز للبناء عبر **Android Studio** أو **AndroidIDE** لتحويل موقع التطبيق على Netlify إلى ملف APK.
+This folder contains a lightweight Android Studio / AndroidIDE project that wraps the deployed Netlify site into an installable Android APK.
 
-## خطوات سريعة قبل البناء
+## Quick Build Steps
 
-1. افتح الملف:
-   `app/src/main/res/values/strings.xml`
-2. استبدل `https://YOUR-NETLIFY-SITE.netlify.app` برابط موقعك الفعلي على Netlify.
-3. افتح مجلد `android-webview` في **Android Studio** (أو في **AndroidIDE** على هاتفك)، ثم اختر:
-   - **Build -> Build Bundle(s) / APK(s) -> Build APK(s)** (في Android Studio).
-   - أو زر **Run / Build APK** في AndroidIDE.
+1. Open `app/src/main/res/values/strings.xml`.
+2. Replace `https://YOUR-NETLIFY-SITE.netlify.app` with your live Netlify deployment URL.
+3. Open the `android-webview` directory in **Android Studio** or **AndroidIDE**, then run **Build -> Build Bundle(s) / APK(s) -> Build APK(s)**.
 
-## المزايا المدمجة
-- شاشة بداية (Splash Screen) بأيقونة Storybook وهوية القسم.
-- صلاحيات الإنترنت (`INTERNET` و `ACCESS_NETWORK_STATE`).
-- دعم رفع ملفات PDF والصوت والصور من لوحة المعلم داخل التطبيق.
-- دعم عرض ملء الشاشة (Fullscreen)، تحميل الملفات، وفتح مشاركة واتساب مباشرة.
+## Included Features
+- Branded Splash Screen with Storybook launcher icons.
+- `INTERNET` and `ACCESS_NETWORK_STATE` permissions.
+- Native file chooser support (`onShowFileChooser`) so teachers can upload PDFs, audio, and covers inside the app.
+- Fullscreen mode support, file downloads via `DownloadManager`, and WhatsApp share link handling.

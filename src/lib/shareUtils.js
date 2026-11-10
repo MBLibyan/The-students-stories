@@ -4,7 +4,7 @@ export function getBookShareUrl(bookId) {
 }
 
 export function getWhatsAppShareUrl({ title, url }) {
-  const message = `اقرأ واستمع إلى قصة "${title}" التفاعلية مع اختبار الفهم على Storybook Flipbook:\n${url}`;
+  const message = `Read and listen to "${title}" with the Quick Check quiz on Storybook Flipbook:\n${url}`;
   return `https://wa.me/?text=${encodeURIComponent(message)}`;
 }
 
@@ -22,7 +22,7 @@ export async function copyToClipboard(text) {
   textarea.select();
   const ok = document.execCommand('copy');
   textarea.remove();
-  if (!ok) throw new Error('تعذر نسخ الرابط تلقائياً.');
+  if (!ok) throw new Error('Could not copy the link automatically.');
   return true;
 }
 
@@ -32,7 +32,7 @@ export async function shareBookNative({ title, description, url }) {
   }
   await navigator.share({
     title: title || 'Storybook Flipbook',
-    text: description || `اقرأ قصة "${title}" على Storybook Flipbook`,
+    text: description || `Read "${title}" on Storybook Flipbook`,
     url,
   });
   return true;
