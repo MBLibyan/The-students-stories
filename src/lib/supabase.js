@@ -25,13 +25,13 @@ export function translateSupabaseError(error) {
   const message = String(error.message || error.error_description || error).toLowerCase();
 
   if (message.includes('invalid login credentials')) {
-    return 'Incorrect email address or password.';
+    return 'Incorrect username or password.';
   }
   if (message.includes('email not confirmed')) {
-    return 'Please confirm your email address first or enable auto-confirm in Supabase.';
+    return 'This account is not confirmed yet. Enable Auto Confirm User in Supabase Authentication -> Users.';
   }
   if (message.includes('user already registered')) {
-    return 'This email address is already registered.';
+    return 'This account is already registered.';
   }
   if (message.includes('password should be at least')) {
     return 'Password must be at least 6 characters long.';

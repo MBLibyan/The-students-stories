@@ -32,16 +32,22 @@ import {
   validateImageFile,
   validateQuestion,
 } from '../lib/validation';
+import {
+  formatUserDisplayName,
+  getAdminUsernameDomain,
+  resolveAuthEmail,
+} from '../lib/authUtils';
 import QuestionBuilder from '../components/QuestionBuilder';
 import ShareModal from '../components/ShareModal';
 
 export default function TeacherPage({ onNotify }) {
   const { user, loading: authLoading, isDemoMode, signIn, signOut } = useAuth();
 
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [authSubmitting, setAuthSubmitting] = useState(false);
   const [authError, setAuthError] = useState('');
+  const usernameDomain = getAdminUsernameDomain();
 
   const [books, setBooks] = useState([]);
   const [booksLoading, setBooksLoading] = useState(false);
@@ -111,14 +117,21 @@ export default function TeacherPage({ onNotify }) {
   const handleLogin = async (e) => {
     e.preventDefault();
     setAuthError('');
-    if (!isDemoMode && (!email.trim() || !password)) {
-      setAuthError('Please enter your email address and password.');
-      return;
+    if (!isDemoMode) {
+      if (!username.trim() || !password) {
+        setAuthError('Please enter your username and password.');
+        return;
+      }
+      const resolved = resolveAuthEmail(username);
+      if (!resolved.valid) {
+        setAuthError(resolved.error);
+        return;
+      }
     }
 
     setAuthSubmitting(true);
     try {
-      await signIn(email, password);
+      await signIn(username, password);
       onNotify?.('Signed in successfully!', 'success');
     } catch (err) {
       setAuthError(err.message || 'Unable to sign in.');
@@ -351,16 +364,22 @@ export default function TeacherPage({ onNotify }) {
             {!isDemoMode ? (
               <>
                 <div className="field">
-                  <label htmlFor="teacher-email">Email Address</label>
+                  <label htmlFor="teacher-username">Username</label>
                   <input
-                    id="teacher-email"
-                    type="email"
+                    id="teacher-username"
+                    type="text"
                     required
-                    autoComplete="email"
-                    placeholder="teacher@university.edu"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    autoComplete="username"
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    spellCheck={false}
+                    placeholder="admin"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
                   />
+                  <small className="field-hint">
+                    Enter your admin username (for example, <code>admin</code>).
+                  </small>
                 </div>
 
                 <div className="field">
@@ -411,7 +430,8 @@ export default function TeacherPage({ onNotify }) {
 
           {!isDemoMode && (
             <p className="auth-footnote">
-              Teacher accounts are managed from Supabase Dashboard (Authentication → Users).
+              Teacher accounts are managed in Supabase Dashboard (Authentication → Users) as{' '}
+              <code>&lt;username&gt;@{usernameDomain}</code>.
             </p>
           )}
         </section>
@@ -425,7 +445,7 @@ export default function TeacherPage({ onNotify }) {
         <div>
           <h1>Teacher Dashboard — Manage Interactive Stories</h1>
           <p className="muted">
-            Signed in as: <span>{user.email}</span>
+            Signed in as: <span>{formatUserDisplayName(user)}</span>
           </p>
         </div>
 
