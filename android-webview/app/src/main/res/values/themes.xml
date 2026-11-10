@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Storybook.Main" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/brand_navy</item>
+        <item name="colorPrimaryDark">@color/brand_navy_dark</item>
+        <item name="colorAccent">@color/brand_gold</item>
+        <item name="android:statusBarColor">@color/brand_navy_dark</item>
+    </style>
+
+    <style name="Theme.Storybook.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/brand_navy</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+        <item name="postSplashScreenTheme">@style/Theme.Storybook.Main</item>
+    </style>
+</resources>

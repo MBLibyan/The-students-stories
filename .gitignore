@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dist-ssr/
+*.local
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Editor / OS
+.DS_Store
+.vscode/
+.idea/
+*.swp
+
+# Android build artifacts inside /android-webview
+android-webview/.gradle/
+android-webview/local.properties
+android-webview/build/
+android-webview/app/build/
+android-webview/.idea/
+android-webview/*.iml
+android-webview/app/*.iml
+android-webview/captures/

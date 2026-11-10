@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Spine / Cover -->
+    <path
+        android:fillColor="#B45309"
+        android:pathData="M24,33 C24,31 26,29 28,29 L80,29 C82,29 84,31 84,33 L84,75 C84,77 82,79 80,79 L28,79 C26,79 24,77 24,75 Z" />
+    <!-- Left Page -->
+    <path
+        android:fillColor="#FFFDF8"
+        android:pathData="M28,31 L53,31 L53,74 L28,74 Z" />
+    <!-- Right Page -->
+    <path
+        android:fillColor="#F6EFE2"
+        android:pathData="M55,31 L80,31 L80,74 L55,74 Z" />
+    <!-- Bookmark -->
+    <path
+        android:fillColor="#FBBF24"
+        android:pathData="M51,74 L57,74 L57,86 L54,82 L51,86 Z" />
+</vector>
