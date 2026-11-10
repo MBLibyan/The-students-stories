@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E3A5F" />
+      <stop offset="100%" stop-color="#0F233D" />
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FBBF24" />
+      <stop offset="100%" stop-color="#D97706" />
+    </linearGradient>
+    <linearGradient id="pageGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFDF8" />
+      <stop offset="100%" stop-color="#F3EBDD" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="108" fill="url(#bgGrad)" />
+  <rect x="28" y="28" width="456" height="456" rx="88" fill="none" stroke="url(#goldGrad)" stroke-width="6" opacity="0.45" />
+  <!-- Open Storybook -->
+  <g transform="translate(88, 124)">
+    <!-- Hard Cover Spine -->
+    <rect x="-8" y="16" width="352" height="248" rx="18" fill="#B45309" />
+    <!-- Left Page -->
+    <path d="M12,18 C64,8 124,10 166,28 L166,248 C124,232 64,230 12,240 Z" fill="url(#pageGrad)" />
+    <!-- Right Page -->
+    <path d="M324,18 C272,8 212,10 170,28 L170,248 C212,232 272,230 324,240 Z" fill="url(#pageGrad)" />
+    <!-- Flipping Mid Page -->
+    <path d="M170,28 C215,0 264,-2 296,6 L296,214 C258,208 212,216 170,248 Z" fill="#FFF8EC" stroke="#E5D5BA" stroke-width="3" />
+    <!-- Text lines on left page -->
+    <line x1="38" y1="64" x2="138" y2="64" stroke="#1E3A5F" stroke-width="8" stroke-linecap="round" opacity="0.7" />
+    <line x1="38" y1="96" x2="138" y2="96" stroke="#64748B" stroke-width="6" stroke-linecap="round" opacity="0.55" />
+    <line x1="38" y1="124" x2="122" y2="124" stroke="#64748B" stroke-width="6" stroke-linecap="round" opacity="0.55" />
+    <line x1="38" y1="152" x2="134" y2="152" stroke="#64748B" stroke-width="6" stroke-linecap="round" opacity="0.55" />
+    <line x1="38" y1="180" x2="112" y2="180" stroke="#64748B" stroke-width="6" stroke-linecap="round" opacity="0.55" />
+    <!-- Lines on turning page -->
+    <line x1="196" y1="54" x2="268" y2="48" stroke="#1E3A5F" stroke-width="7" stroke-linecap="round" opacity="0.7" />
+    <line x1="196" y1="84" x2="268" y2="78" stroke="#64748B" stroke-width="5.5" stroke-linecap="round" opacity="0.55" />
+    <line x1="196" y1="112" x2="254" y2="107" stroke="#64748B" stroke-width="5.5" stroke-linecap="round" opacity="0.55" />
+    <!-- Bookmark Ribbon -->
+    <path d="M158,248 L158,292 L168,280 L178,292 L178,248 Z" fill="url(#goldGrad)" />
+  </g>
+</svg>
