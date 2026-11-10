@@ -29,9 +29,9 @@ const SAMPLE_QUESTIONS = [
 ];
 
 describe('QuizPage', () => {
-  it('shows friendly message when no questions exist', () => {
+  it('shows friendly English message when no questions exist', () => {
     render(<QuizPage questions={[]} bookTitle="Sample" />);
-    expect(screen.getByText(/لم يضف المعلم أسئلة اختبار/)).toBeInTheDocument();
+    expect(screen.getByText(/No quiz questions have been added for this story yet/)).toBeInTheDocument();
   });
 
   it('supports one-by-one mode with instant feedback, explanation, final score, and Try again', () => {
@@ -40,27 +40,22 @@ describe('QuizPage', () => {
     expect(screen.getByText('Where was the lantern hanging?')).toBeInTheDocument();
     expect(screen.getByText('Multiple Choice')).toBeInTheDocument();
 
-    // Pick wrong answer on Q1
     fireEvent.click(screen.getByRole('button', { name: /On the roof/ }));
     expect(screen.getByText(/Not quite — the correct answer is A/)).toBeInTheDocument();
     expect(screen.getByText('Chapter I places it halfway down the stone pier.')).toBeInTheDocument();
 
-    // Go to Q2
     fireEvent.click(screen.getByRole('button', { name: /Next/ }));
     expect(screen.getByText('Why did the keeper light the lantern?')).toBeInTheDocument();
     expect(screen.getByText('Inference')).toBeInTheDocument();
 
-    // Pick correct answer on Q2
     fireEvent.click(screen.getByRole('button', { name: /To guide small rowboats below the bluff/ }));
     expect(screen.getByText(/Correct! Well reasoned\./)).toBeInTheDocument();
 
-    // Open final score card
     fireEvent.click(screen.getByRole('button', { name: /See Final Score/ }));
     expect(screen.getByText('Quick Check Complete')).toBeInTheDocument();
     expect(screen.getByText(/1 \/ 2/)).toBeInTheDocument();
     expect(screen.getByText(/\(50%\)/)).toBeInTheDocument();
 
-    // Reset with Try again
     fireEvent.click(screen.getByRole('button', { name: /Try again/ }));
     expect(screen.getByText('Where was the lantern hanging?')).toBeInTheDocument();
   });

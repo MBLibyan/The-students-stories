@@ -5,7 +5,7 @@ import AudioPlayerBar from '../components/AudioPlayerBar';
 describe('AudioPlayerBar', () => {
   it('shows notice when no audio URL is attached', () => {
     render(<AudioPlayerBar audioUrl={null} title="Story" />);
-    expect(screen.getByText(/لا يوجد ملف صوتي مرفق/)).toBeInTheDocument();
+    expect(screen.getByText(/No audio narration is attached to this story yet/)).toBeInTheDocument();
   });
 
   it('renders play button, seek bar, and updates playbackRate for 0.75x / 1x / 1.25x', () => {
@@ -15,8 +15,8 @@ describe('AudioPlayerBar', () => {
 
     const audioEl = container.querySelector('audio');
     expect(audioEl).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /تشغيل الصوت/ })).toBeInTheDocument();
-    expect(screen.getByRole('slider', { name: /شريط تقديم وتأخير الصوت/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Play audio/ })).toBeInTheDocument();
+    expect(screen.getByRole('slider', { name: /Seek audio position/ })).toBeInTheDocument();
 
     const btn075 = screen.getByRole('button', { name: '0.75x' });
     const btn1 = screen.getByRole('button', { name: '1x' });

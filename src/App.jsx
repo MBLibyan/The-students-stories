@@ -21,7 +21,7 @@ export default function App() {
     };
     const onAppInstalled = () => {
       setDeferredPrompt(null);
-      notify('تم تثبيت تطبيق Storybook Flipbook على جهازك!', 'success');
+      notify('Storybook Flipbook has been installed on your device!', 'success');
     };
 
     window.addEventListener('beforeinstallprompt', onBeforeInstall);
@@ -77,8 +77,8 @@ export default function App() {
 
             <footer className="app-footer">
               <div className="container footer-inner">
-                <span>Storybook Flipbook — منصة القصص التفاعلية لقسم اللغة الإنجليزية</span>
-                <span className="muted">يعمل كتطبيق ويب تقدمي (PWA) ويدعم القراءة بدون تسجيل</span>
+                <span>Storybook Flipbook — University English Department Reading Platform</span>
+                <span className="muted">Installable PWA • No student login required</span>
               </div>
             </footer>
 

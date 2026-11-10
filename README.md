@@ -1,122 +1,88 @@
-# Storybook Flipbook — تطبيق القصص الإنجليزية التفاعلية
+# Storybook Flipbook — Interactive English Reading Library
 
-تطبيق ويب تقدمي (**PWA**) متجاوب (Mobile-First) مخصّص لطلبة **قسم اللغة الإنجليزية في الجامعات**، يجمع بين واجهة عربية سهلة الاستخدام (**RTL**) ومحتوى قصصي واختبارات باللغة الإنجليزية (**LTR**) بتجربة تصفح تحاكي الكتاب الورقي الحقيقي.
+A mobile-first Progressive Web App (**PWA**) built for **university English-department students**, offering a realistic page-flipping reading experience, synchronized audio narration, and interactive comprehension & inference quizzes — all in a clean English interface.
 
 [![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/MBLibyan/The-students-stories)
 
 ---
 
-## المميزات الرئيسية
+## Features
 
-### للطلبة (صفحة القراءة العامة `/book/:id`)
-- **لا يتطلب تسجيل دخول**: يفتح الطالب القصة مباشرة عبر الرابط المشارك.
-- **كتاب تفاعلي بتقليب صفحات واقعي (`StPageFlip` + `pdf.js`)**:
-  - ترتيب الصفحات: **الغلاف الأمامي ← صفحات القصة (من PDF) ← صفحة الاختبار السريع التفاعلية ← الغلاف الخلفي**.
-  - تحميل وتصيير كسول (**Lazy Rendering**) لصفحات ملفات PDF الكبيرة لضمان سرعة الأداء على الهواتف.
-  - السحب بالإصبع على الجوال، وأزرار التنقل، ولوحة المفاتيح، ووضع **ملء الشاشة**.
-- **مشغل صوتي متكامل**: تشغيل/إيقاف مؤقت، شريط تقديم وتأخير، والتحكم بسرعة القراءة (**0.75x / 1x / 1.25x**).
-- **اختبار الفهم السريع (Quick Check)**:
-  - يدعم أسئلة **الاختيار من متعدد (Multiple Choice)** و**الأسئلة الاستنتاجية (Inference)**.
-  - إمكانية العرض **سؤالاً بسؤال** أو **كل الأسئلة معاً**.
-  - تصحيح فوري باللون الأخضر/الأحمر مع إظهار التفسير العلمي، والنتيجة النهائية، وزر **Try again**.
-- **أدوات سريعة**: عرض ملء الشاشة، تحميل ملف PDF والملف الصوتي الأصلي، والمشاركة عبر واتساب أو نسخ الرابط أو قائمة المشاركة في الهاتف.
-- **الوضع الليلي والنهاري (Dark / Light Mode)**.
+### Student Flipbook Viewer (`/book/:id` — Public, No Login Required)
+- **Realistic Page-Flip Animation (`StPageFlip` + `pdf.js`):**
+  - Page sequence: **Front Cover → PDF Story Pages → Interactive Quick Check Quiz → Back Cover**.
+  - **Lazy PDF Rendering:** Streams large PDFs and renders only a sliding window around the current page, evicting distant pages from memory on mobile devices.
+  - Supports touch swipe, Next/Previous buttons, keyboard arrows, and **View Fullscreen**.
+- **Audio Player Bar:** Play/Pause, seek bar, duration readout, and **`0.75x` / `1x` / `1.25x`** playback speeds.
+- **Interactive Quick Check Quiz:**
+  - Supports **Multiple Choice** and **Inference** questions.
+  - Toggle between **One by one** and **All together** modes.
+  - Instant green/red visual feedback, optional explanation reveal, final score breakdown, and **Try again**.
+- **Download & Share:** Download the original story PDF and audio track, or share via Web Share API, Copy Link, and WhatsApp.
+- **Dark / Light Mode** and installable Android PWA (`manifest.json`, `sw.js`, icons).
 
-### للمعلم / المشرف (لوحة التحكم `/admin`)
-- تسجيل دخول آمن عبر **Supabase Auth** (البريد الإلكتروني وكلمة المرور).
-- رفع ملف القصة **PDF** مع فحص تلقائي لعدد الصفحات.
-- رفع ملف صوتي (**MP3 / M4A / WAV**) مع معاينة قبل النشر.
-- رفع **صورة الغلاف الأمامي** و**صورة الغلاف الخلفي**.
-- منشئ أسئلة متكامل لإضافة الأسئلة وتعديلها وحذفها وإعادة ترتيبها مع دعم أسئلة الفهم والاستنتاج.
-- قائمة بجميع كتب المعلم مع أزرار: **عرض، تحميل، مشاركة، تعديل، حذف**.
+### Teacher Portal (`/admin` — Supabase Email/Password Login)
+- Upload story PDF (with automatic page-count verification).
+- Upload audio narration (MP3 / M4A / WAV) with inline preview.
+- Upload front cover and back cover images.
+- Quiz Question Builder supporting add, edit, delete, and reorder for Multiple Choice and Inference questions.
+- Published Books list with **View**, **Download PDF**, **Download Audio**, **Share**, **Edit**, and **Delete**.
 
 ---
 
-## 1. إعداد قاعدة البيانات والتخزين في Supabase
+## 1. Supabase Database & Storage Setup
 
-1. أنشئ مشروعاً جديداً على [Supabase](https://supabase.com/).
-2. من القائمة الجانبية افتح **SQL Editor** ← اضغط **New query**.
-3. انسخ كامل محتوى الملف التالي والصقه ثم اضغط **Run**:
-   - `supabase/migrations/001_initial_schema.sql`
-4. سيقوم السكربت تلقائياً بإنشاء:
-   - جدول `public.books` وجدول `public.questions`.
-   - سياسات الحماية (**Row Level Security**): القراءة متاحة للجميع، والإضافة/التعديل/الحذف للمعلم المالك فقط.
-   - حاويات التخزين (**Storage Buckets**): `story-pdfs` و `story-audio` و `story-covers` (قراءة عامة للجميع، والكتابة للمعلمين المسجلين فقط).
-
-### إنشاء حساب المعلم
-1. من لوحة تحكم Supabase انتقل إلى **Authentication ← Users**.
-2. اضغط **Add user ← Create new user**.
-3. أدخل البريد الإلكتروني وكلمة المرور الخاصة بالمعلم (ويُفضل تفعيل خيار **Auto Confirm User**).
-4. استخدم هذا البريد وكلمة المرور لتسجيل الدخول في صفحة `/admin`.
-
-### الحصول على مفاتيح Supabase
-1. انتقل في Supabase إلى **Project Settings ← API**.
-2. انسخ:
-   - **Project URL** (قيمة `VITE_SUPABASE_URL`)
-   - **anon public key** (قيمة `VITE_SUPABASE_ANON_KEY`)
+1. Create a standalone Supabase project for your English-department stories.
+2. Open **SQL Editor → New query**, paste the contents of `supabase/migrations/001_initial_schema.sql`, and click **Run**.
+3. Create a Teacher user under **Authentication → Users → Add user → Create new user** (enable **Auto Confirm User**).
+4. Copy your **Project URL** and **anon public key** from **Project Settings → API**.
 
 ---
 
-## 2. التشغيل المحلي (اختياري للمطورين)
+## 2. Local Development
 
 ```bash
 npm install
 cp .env.example .env
 ```
 
-افتح ملف `.env` وضع مفاتيح Supabase الخاصة بك:
+Set your Supabase keys in `.env`:
 
 ```env
 VITE_SUPABASE_URL=https://YOUR_PROJECT_ID.supabase.co
 VITE_SUPABASE_ANON_KEY=YOUR_SUPABASE_ANON_KEY
 ```
 
-ثم شغّل الخادم المحلي:
+Run locally:
 
 ```bash
 npm run dev
 ```
 
-> **ملاحظة**: إذا لم تُضَف مفاتيح Supabase بعد، يعمل التطبيق تلقائياً في **وضع المعاينة التجريبية (Demo Mode)** بقصة إنجليزية تجريبية كاملة لتجربة تقليب الصفحات والصوت والاختبار.
+*(Without Supabase env vars configured, the app runs in Demo Mode with a bundled sample story.)*
 
 ---
 
-## 3. النشر على Netlify
+## 3. Deploy to Netlify
 
-يحتوي المستودع بالفعل على ملف `netlify.toml` مضبوط للبناء وتوجيه مسارات التطبيق (`/book/:id` و `/admin`) وإعدادات PWA.
+`netlify.toml` is already configured for Vite build (`npm run build` → `dist`), SPA routing (`/* → /index.html`), and PWA caching headers.
 
-1. ادخل إلى [Netlify](https://app.netlify.com/) واختر **Add new site ← Import an existing project**.
-2. اختر **GitHub** وحدد المستودع `MBLibyan/The-students-stories`.
-3. تأكد من الإعدادات (تُقرأ تلقائياً من `netlify.toml`):
-   - **Build command**: `npm run build`
-   - **Publish directory**: `dist`
-4. قبل الضغط على Deploy، اذهب إلى **Environment variables** وأضف المتغيرين:
+1. Open [Netlify](https://app.netlify.com/) → **Add new site → Import an existing project** → choose GitHub repository `MBLibyan/The-students-stories` (`main` branch).
+2. Add environment variables in Netlify:
    - `VITE_SUPABASE_URL`
    - `VITE_SUPABASE_ANON_KEY`
-5. اضغط **Deploy site**، وخلال دقيقة ستحصل على رابط الموقع المباشر بصيغة `https://xxxx.netlify.app`.
+3. Click **Deploy site**.
 
 ---
 
-## 4. تثبيت التطبيق على أندرويد كـ PWA
+## 4. Install as Android PWA & Build APK (`/android-webview`)
 
-1. افتح رابط موقعك المنشور على Netlify باستخدام متصفح **Google Chrome** على هاتف أندرويد.
-2. سيظهر لك شريط **"تثبيت التطبيق"** أعلى الصفحة، أو اضغط على قائمة المتصفح (`⋮`) ثم اختر:
-   - **تثبيت التطبيق (Install app)** أو **الإضافة إلى الشاشة الرئيسية (Add to Home screen)**.
-3. سيظهر التطبيق بأيقونته الخاصة على الشاشة الرئيسية ويعمل بملء الشاشة كتطبيق مستقل.
+- **PWA:** Open the live Netlify URL in Chrome on Android and tap **Install App** (or Chrome menu `⋮` → **Install app**).
+- **APK:** Edit `android-webview/app/src/main/res/values/strings.xml` (`app_url`), open `/android-webview` in **Android Studio** or **AndroidIDE**, and build the APK.
 
 ---
 
-## 5. بناء ملف APK عبر مجلد `/android-webview`
-
-إذا أردت توزيع ملف APK مباشر للطلبة:
-
-1. افتح الملف `android-webview/app/src/main/res/values/strings.xml`.
-2. غيّر قيمة `app_url` إلى رابط موقعك الحقيقي على Netlify بدلاً من `https://YOUR-NETLIFY-SITE.netlify.app`.
-3. افتح المجلد `android-webview` باستخدام **Android Studio** أو **AndroidIDE** على الهاتف، ثم أنشئ ملف APK عبر **Build APK(s)**.
-
----
-
-## الاختبارات والتحقق
+## Verification
 
 ```bash
 npm test

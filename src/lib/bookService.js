@@ -30,7 +30,7 @@ function fileToDataUrl(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(reader.result);
-    reader.onerror = () => reject(new Error('تعذر قراءة الملف محلياً.'));
+    reader.onerror = () => reject(new Error('Failed to read the local file.'));
     reader.readAsDataURL(file);
   });
 }
@@ -85,7 +85,7 @@ export async function getBookWithQuestions(bookId) {
   if (!isSupabaseConfigured || !supabase) {
     const found = readDemoStore().find((b) => b.id === bookId);
     if (!found) {
-      throw new Error('لم يتم العثور على هذه القصة.');
+      throw new Error('This story could not be found.');
     }
     return {
       ...found,
@@ -100,7 +100,7 @@ export async function getBookWithQuestions(bookId) {
     .single();
 
   if (bookError || !book) {
-    throw new Error(bookError ? translateSupabaseError(bookError) : 'لم يتم العثور على القصة.');
+    throw new Error(bookError ? translateSupabaseError(bookError) : 'This story could not be found.');
   }
 
   const { data: questions, error: qError } = await supabase
@@ -138,7 +138,7 @@ export async function saveBookWithQuestions({
 
   // Demo Mode local fallback
   if (!isSupabaseConfigured || !supabase) {
-    onProgress?.('جاري تجهيز الكتاب في وضع المعاينة...');
+    onProgress?.('Preparing book in Demo Mode...');
     const id = editingBook?.id || `demo-${Date.now()}`;
     const pdfUrl = pdfFile ? await fileToDataUrl(pdfFile) : editingBook?.pdf_url;
     const audioUrl = removeAudio
@@ -195,7 +195,7 @@ export async function saveBookWithQuestions({
 
   // Upload assets cleanly to Supabase Storage
   if (pdfFile) {
-    onProgress?.('جاري رفع ملف PDF إلى وحدة التخزين...');
+    onProgress?.('Uploading story PDF to storage...');
     const newPdfUrl = await uploadBookAsset({
       bucket: BUCKETS.pdfs,
       userId: ownerId,
@@ -208,7 +208,7 @@ export async function saveBookWithQuestions({
   }
 
   if (audioFile) {
-    onProgress?.('جاري رفع الملف الصوتي...');
+    onProgress?.('Uploading audio narration...');
     const newAudioUrl = await uploadBookAsset({
       bucket: BUCKETS.audio,
       userId: ownerId,
@@ -223,7 +223,7 @@ export async function saveBookWithQuestions({
   }
 
   if (frontCoverFile) {
-    onProgress?.('جاري رفع صورة الغلاف الأمامي...');
+    onProgress?.('Uploading front cover image...');
     const newFrontUrl = await uploadBookAsset({
       bucket: BUCKETS.covers,
       userId: ownerId,
@@ -238,7 +238,7 @@ export async function saveBookWithQuestions({
   }
 
   if (backCoverFile) {
-    onProgress?.('جاري رفع صورة الغلاف الخلفي...');
+    onProgress?.('Uploading back cover image...');
     const newBackUrl = await uploadBookAsset({
       bucket: BUCKETS.covers,
       userId: ownerId,
@@ -252,7 +252,7 @@ export async function saveBookWithQuestions({
     await deleteStorageFileByUrl(editingBook.cover_back_url);
   }
 
-  onProgress?.('جاري حفظ بيانات الكتاب في قاعدة البيانات...');
+  onProgress?.('Saving book metadata to database...');
 
   const bookPayload = {
     id: bookId,
@@ -302,7 +302,7 @@ export async function saveBookWithQuestions({
     savedBook = data;
   }
 
-  onProgress?.('جاري حفظ أسئلة الاختبار...');
+  onProgress?.('Saving quiz questions...');
 
   let savedQuestions = [];
   if (orderedQuestions.length > 0) {

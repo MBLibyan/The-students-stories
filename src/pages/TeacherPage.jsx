@@ -38,19 +38,16 @@ import ShareModal from '../components/ShareModal';
 export default function TeacherPage({ onNotify }) {
   const { user, loading: authLoading, isDemoMode, signIn, signOut } = useAuth();
 
-  // Auth Login State
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [authSubmitting, setAuthSubmitting] = useState(false);
   const [authError, setAuthError] = useState('');
 
-  // Teacher's Books List
   const [books, setBooks] = useState([]);
   const [booksLoading, setBooksLoading] = useState(false);
   const [shareBook, setShareBook] = useState(null);
   const [deletingId, setDeletingId] = useState('');
 
-  // Editor Form State
   const formTopRef = useRef(null);
   const pdfInputRef = useRef(null);
   const audioInputRef = useRef(null);
@@ -62,7 +59,7 @@ export default function TeacherPage({ onNotify }) {
   const [description, setDescription] = useState('');
 
   const [pdfFile, setPdfFile] = useState(null);
-  const [pdfInfo, setPdfInfo] = useState(null); // { pageCount }
+  const [pdfInfo, setPdfInfo] = useState(null);
 
   const [audioFile, setAudioFile] = useState(null);
   const [audioPreviewUrl, setAudioPreviewUrl] = useState('');
@@ -82,7 +79,6 @@ export default function TeacherPage({ onNotify }) {
   const [progressText, setProgressText] = useState('');
   const [lastCreatedBook, setLastCreatedBook] = useState(null);
 
-  // Clean up object URLs on change/unmount
   useEffect(() => {
     return () => {
       if (audioPreviewUrl && audioPreviewUrl.startsWith('blob:')) URL.revokeObjectURL(audioPreviewUrl);
@@ -98,7 +94,7 @@ export default function TeacherPage({ onNotify }) {
       const data = await listTeacherBooks(user.id);
       setBooks(data);
     } catch (err) {
-      onNotify?.(err.message || 'تعذر تحميل قائمة كتبك.', 'error');
+      onNotify?.(err.message || 'Failed to load your books.', 'error');
     } finally {
       setBooksLoading(false);
     }
@@ -116,16 +112,16 @@ export default function TeacherPage({ onNotify }) {
     e.preventDefault();
     setAuthError('');
     if (!isDemoMode && (!email.trim() || !password)) {
-      setAuthError('يرجى إدخال البريد الإلكتروني وكلمة المرور.');
+      setAuthError('Please enter your email address and password.');
       return;
     }
 
     setAuthSubmitting(true);
     try {
       await signIn(email, password);
-      onNotify?.('تم تسجيل الدخول بنجاح!', 'success');
+      onNotify?.('Signed in successfully!', 'success');
     } catch (err) {
-      setAuthError(err.message || 'تعذر تسجيل الدخول.');
+      setAuthError(err.message || 'Unable to sign in.');
     } finally {
       setAuthSubmitting(false);
     }
@@ -135,9 +131,9 @@ export default function TeacherPage({ onNotify }) {
     try {
       await signOut();
       resetForm();
-      onNotify?.('تم تسجيل الخروج.', 'success');
+      onNotify?.('Signed out.', 'success');
     } catch (err) {
-      onNotify?.(err.message || 'تعذر تسجيل الخروج.', 'error');
+      onNotify?.(err.message || 'Unable to sign out.', 'error');
     }
   };
 
@@ -178,13 +174,13 @@ export default function TeacherPage({ onNotify }) {
     }
 
     try {
-      setProgressText('جاري فحص صفحات ملف PDF...');
+      setProgressText('Inspecting PDF pages...');
       const info = await inspectPdfFile(file);
       setPdfFile(file);
       setPdfInfo(info);
       setProgressText('');
     } catch {
-      setFormError('تعذر قراءة ملف PDF. تأكد من أن الملف غير محمي بكلمة مرور وغير تالف.');
+      setFormError('Could not read the PDF file. Make sure it is not password-protected or corrupted.');
       setProgressText('');
       e.target.value = '';
     }
@@ -212,7 +208,7 @@ export default function TeacherPage({ onNotify }) {
     if (!file) return;
     setFormError('');
 
-    const label = kind === 'front' ? 'الغلاف الأمامي' : 'الغلاف الخلفي';
+    const label = kind === 'front' ? 'Front Cover' : 'Back Cover';
     const check = validateImageFile(file, label);
     if (!check.valid) {
       setFormError(check.error);
@@ -257,7 +253,7 @@ export default function TeacherPage({ onNotify }) {
 
   const handleDeleteBook = async (book) => {
     const confirmed = window.confirm(
-      `هل أنت متأكد من حذف قصة "${book.title}" وجميع أسئلتها؟ لا يمكن التراجع عن هذا الإجراء.`
+      `Are you sure you want to delete "${book.title}" and all its quiz questions? This action cannot be undone.`
     );
     if (!confirmed) return;
 
@@ -267,9 +263,9 @@ export default function TeacherPage({ onNotify }) {
       if (editingBook?.id === book.id) resetForm();
       if (lastCreatedBook?.id === book.id) setLastCreatedBook(null);
       await fetchBooks();
-      onNotify?.('تم حذف القصة بنجاح.', 'success');
+      onNotify?.('Book deleted successfully.', 'success');
     } catch (err) {
-      onNotify?.(err.message || 'تعذر حذف القصة.', 'error');
+      onNotify?.(err.message || 'Unable to delete the book.', 'error');
     } finally {
       setDeletingId('');
     }
@@ -280,11 +276,11 @@ export default function TeacherPage({ onNotify }) {
     setFormError('');
 
     if (!title.trim()) {
-      setFormError('يرجى إدخال عنوان القصة.');
+      setFormError('Please enter a story title.');
       return;
     }
     if (!editingBook && !pdfFile) {
-      setFormError('يرجى رفع ملف PDF للقصة أولاً.');
+      setFormError('Please upload a story PDF file first.');
       return;
     }
     for (let i = 0; i < questions.length; i += 1) {
@@ -317,11 +313,11 @@ export default function TeacherPage({ onNotify }) {
       resetForm();
       await fetchBooks();
       onNotify?.(
-        editingBook ? 'تم تحديث الكتاب التفاعلي بنجاح!' : 'تم إنشاء الكتاب التفاعلي ونشره بنجاح!',
+        editingBook ? 'Interactive book updated successfully!' : 'Interactive book created and published!',
         'success'
       );
     } catch (err) {
-      setFormError(err.message || 'حدث خطأ أثناء حفظ الكتاب.');
+      setFormError(err.message || 'An error occurred while saving the book.');
     } finally {
       setSaving(false);
       setProgressText('');
@@ -333,13 +329,12 @@ export default function TeacherPage({ onNotify }) {
       <main className="page-container container">
         <div className="state-panel">
           <Loader2 size={30} className="spin" />
-          <p>جاري التحقق من جلسة المعلم...</p>
+          <p>Checking teacher session...</p>
         </div>
       </main>
     );
   }
 
-  // Login Screen
   if (!user) {
     return (
       <main className="page-container container auth-page">
@@ -347,20 +342,19 @@ export default function TeacherPage({ onNotify }) {
           <div className="auth-icon">
             <Lock size={26} />
           </div>
-          <h1>بوابة المعلم (لوحة التحكم)</h1>
+          <h1>Teacher Portal (Admin)</h1>
           <p className="muted">
-            سجّل الدخول بحساب المعلم لإضافة قصص PDF، رفع الملفات الصوتية، وإعداد أسئلة الفهم والاستنتاج.
+            Sign in with your instructor account to upload story PDFs, narration audio, cover images, and Quick Check quiz questions.
           </p>
 
           <form onSubmit={handleLogin} className="auth-form">
             {!isDemoMode ? (
               <>
                 <div className="field">
-                  <label htmlFor="teacher-email">البريد الإلكتروني</label>
+                  <label htmlFor="teacher-email">Email Address</label>
                   <input
                     id="teacher-email"
                     type="email"
-                    dir="ltr"
                     required
                     autoComplete="email"
                     placeholder="teacher@university.edu"
@@ -370,11 +364,10 @@ export default function TeacherPage({ onNotify }) {
                 </div>
 
                 <div className="field">
-                  <label htmlFor="teacher-password">كلمة المرور</label>
+                  <label htmlFor="teacher-password">Password</label>
                   <input
                     id="teacher-password"
                     type="password"
-                    dir="ltr"
                     required
                     autoComplete="current-password"
                     placeholder="••••••••"
@@ -386,8 +379,8 @@ export default function TeacherPage({ onNotify }) {
             ) : (
               <div className="notice-banner" role="note">
                 <p>
-                  التطبيق يعمل حالياً في <strong>الوضع التجريبي</strong> لعدم ضبط متغيرات Supabase.
-                  اضغط بالأسفل لتجربة لوحة المعلم وإنشاء كتاب تفاعلي محلياً.
+                  The app is currently running in <strong>Demo Mode</strong> because Supabase keys are not set yet.
+                  Click below to explore the Teacher Dashboard locally.
                 </p>
               </div>
             )}
@@ -406,11 +399,11 @@ export default function TeacherPage({ onNotify }) {
               {authSubmitting ? (
                 <>
                   <Loader2 size={18} className="spin" />
-                  <span>جاري تسجيل الدخول...</span>
+                  <span>Signing in...</span>
                 </>
               ) : (
                 <span>
-                  {isDemoMode ? 'الدخول إلى لوحة المعلم التجريبية' : 'تسجيل الدخول'}
+                  {isDemoMode ? 'Enter Demo Teacher Dashboard' : 'Sign In'}
                 </span>
               )}
             </button>
@@ -418,7 +411,7 @@ export default function TeacherPage({ onNotify }) {
 
           {!isDemoMode && (
             <p className="auth-footnote">
-              تُنشأ حسابات المعلمين من لوحة تحكم Supabase (Authentication → Users).
+              Teacher accounts are managed from Supabase Dashboard (Authentication → Users).
             </p>
           )}
         </section>
@@ -428,18 +421,17 @@ export default function TeacherPage({ onNotify }) {
 
   return (
     <main className="page-container container teacher-page">
-      {/* Teacher Header */}
       <div className="teacher-topbar">
         <div>
-          <h1>لوحة المعلم — إدارة القصص التفاعلية</h1>
+          <h1>Teacher Dashboard — Manage Interactive Stories</h1>
           <p className="muted">
-            مرحباً بك: <span dir="ltr">{user.email}</span>
+            Signed in as: <span>{user.email}</span>
           </p>
         </div>
 
         <button type="button" className="btn btn-outline btn-sm" onClick={handleLogout}>
           <LogOut size={16} />
-          <span>تسجيل الخروج</span>
+          <span>Sign Out</span>
         </button>
       </div>
 
@@ -448,14 +440,14 @@ export default function TeacherPage({ onNotify }) {
           <div className="success-callout-info">
             <CheckCircle2 size={20} />
             <div>
-              <strong>تم تجهيز الكتاب بنجاح: {lastCreatedBook.title}</strong>
-              <p>تم تحويل صفحات PDF إلى كتاب تفاعلي وحفظ الأسئلة.</p>
+              <strong>Book Ready: {lastCreatedBook.title}</strong>
+              <p>PDF pages have been converted to an interactive flipbook and quiz questions are saved.</p>
             </div>
           </div>
           <div className="success-callout-actions">
             <Link to={`/book/${lastCreatedBook.id}`} className="btn btn-primary btn-sm">
               <Eye size={16} />
-              <span>عرض الكتاب الآن</span>
+              <span>View Flipbook</span>
             </Link>
             <button
               type="button"
@@ -463,39 +455,35 @@ export default function TeacherPage({ onNotify }) {
               onClick={() => setShareBook(lastCreatedBook)}
             >
               <Share2 size={16} />
-              <span>مشاركة مع الطلبة</span>
+              <span>Share with Students</span>
             </button>
           </div>
         </div>
       )}
 
-      {/* Create / Edit Book Form */}
       <section ref={formTopRef} className="editor-card">
         <div className="editor-card-header">
           <h2>
             <BookPlus size={20} />
             <span>
-              {editingBook ? `تعديل الكتاب: ${editingBook.title}` : 'إنشاء كتاب تفاعلي جديد'}
+              {editingBook ? `Edit Book: ${editingBook.title}` : 'Create New Interactive Book'}
             </span>
           </h2>
           {editingBook && (
             <button type="button" className="btn btn-ghost btn-sm" onClick={resetForm}>
               <X size={16} />
-              <span>إلغاء التعديل وإنشاء كتاب جديد</span>
+              <span>Cancel Edit & Create New</span>
             </button>
           )}
         </div>
 
         <form onSubmit={handleSubmitBook} className="teacher-form">
-          {/* Metadata */}
           <div className="form-two-cols">
             <div className="field">
-              <label htmlFor="book-title">عنوان القصة *</label>
+              <label htmlFor="book-title">Story Title *</label>
               <input
                 id="book-title"
                 type="text"
-                dir="ltr"
-                lang="en"
                 required
                 placeholder="e.g., The Lantern on the Harbour Wall"
                 value={title}
@@ -504,12 +492,10 @@ export default function TeacherPage({ onNotify }) {
             </div>
 
             <div className="field">
-              <label htmlFor="book-desc">وصف قصير للقصة</label>
+              <label htmlFor="book-desc">Short Description</label>
               <input
                 id="book-desc"
                 type="text"
-                dir="ltr"
-                lang="en"
                 placeholder="Short literary overview for English-department students..."
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -517,15 +503,14 @@ export default function TeacherPage({ onNotify }) {
             </div>
           </div>
 
-          {/* File Uploads */}
           <div className="uploads-grid">
             {/* 1. PDF Upload */}
             <div className="upload-box">
               <div className="upload-box-head">
                 <FileText size={20} />
                 <div>
-                  <strong>ملف القصة (PDF) {!editingBook && '*'}</strong>
-                  <small>الحد الأقصى 50 ميجابايت — تُعرض الصفحات تلقائياً</small>
+                  <strong>Story PDF File {!editingBook && '*'}</strong>
+                  <small>Max 50 MB — pages render lazily inside the flipbook</small>
                 </div>
               </div>
 
@@ -543,18 +528,22 @@ export default function TeacherPage({ onNotify }) {
                 onClick={() => pdfInputRef.current?.click()}
               >
                 <PlusCircle size={16} />
-                <span>{pdfFile || editingBook?.pdf_url ? 'تغيير ملف PDF' : 'إضافة ملف PDF'}</span>
+                <span>{pdfFile || editingBook?.pdf_url ? 'Change PDF' : 'Add PDF'}</span>
               </button>
 
               {pdfFile && (
                 <div className="upload-meta">
-                  <span dir="ltr">{pdfFile.name}</span>
-                  {pdfInfo && <span className="meta-chip">{pdfInfo.pageCount} صفحة</span>}
+                  <span>{pdfFile.name}</span>
+                  {pdfInfo && (
+                    <span className="meta-chip">
+                      {pdfInfo.pageCount} {pdfInfo.pageCount === 1 ? 'page' : 'pages'}
+                    </span>
+                  )}
                 </div>
               )}
               {!pdfFile && editingBook?.pdf_url && (
                 <div className="upload-meta">
-                  <span>ملف PDF الحالي محفوظ وجاهز.</span>
+                  <span>Current PDF file is saved and ready.</span>
                 </div>
               )}
             </div>
@@ -564,8 +553,8 @@ export default function TeacherPage({ onNotify }) {
               <div className="upload-box-head">
                 <Music size={20} />
                 <div>
-                  <strong>الملف الصوتي للقصة (MP3 / M4A)</strong>
-                  <small>اختياري — يُمكّن الطالب من الاستماع أثناء القراءة</small>
+                  <strong>Audio Narration (MP3 / M4A)</strong>
+                  <small>Optional — enables the student audio player</small>
                 </div>
               </div>
 
@@ -585,7 +574,7 @@ export default function TeacherPage({ onNotify }) {
                   onClick={() => audioInputRef.current?.click()}
                 >
                   <Music size={16} />
-                  <span>{audioFile || audioPreviewUrl ? 'تغيير الصوت' : 'رفع ملف صوتي'}</span>
+                  <span>{audioFile || audioPreviewUrl ? 'Change Audio' : 'Upload Audio'}</span>
                 </button>
 
                 {(audioFile || audioPreviewUrl) && (
@@ -599,12 +588,12 @@ export default function TeacherPage({ onNotify }) {
                       if (audioInputRef.current) audioInputRef.current.value = '';
                     }}
                   >
-                    إزالة
+                    Remove
                   </button>
                 )}
               </div>
 
-              {audioFile && <div className="upload-meta" dir="ltr">{audioFile.name}</div>}
+              {audioFile && <div className="upload-meta">{audioFile.name}</div>}
               {audioPreviewUrl && (
                 <audio controls src={audioPreviewUrl} className="upload-audio-preview" />
               )}
@@ -615,8 +604,8 @@ export default function TeacherPage({ onNotify }) {
               <div className="upload-box-head">
                 <ImageIcon size={20} />
                 <div>
-                  <strong>صورة الغلاف الأمامي</strong>
-                  <small>اختياري — PNG أو JPG</small>
+                  <strong>Front Cover Image</strong>
+                  <small>Optional — PNG or JPG</small>
                 </div>
               </div>
 
@@ -636,7 +625,7 @@ export default function TeacherPage({ onNotify }) {
                   onClick={() => frontCoverInputRef.current?.click()}
                 >
                   <ImageIcon size={16} />
-                  <span>{frontCoverPreview ? 'تغيير الغلاف الأمامي' : 'رفع الغلاف الأمامي'}</span>
+                  <span>{frontCoverPreview ? 'Change Front Cover' : 'Upload Front Cover'}</span>
                 </button>
 
                 {frontCoverPreview && (
@@ -650,7 +639,7 @@ export default function TeacherPage({ onNotify }) {
                       if (frontCoverInputRef.current) frontCoverInputRef.current.value = '';
                     }}
                   >
-                    إزالة
+                    Remove
                   </button>
                 )}
               </div>
@@ -658,7 +647,7 @@ export default function TeacherPage({ onNotify }) {
               {frontCoverPreview && (
                 <img
                   src={frontCoverPreview}
-                  alt="معاينة الغلاف الأمامي"
+                  alt="Front cover preview"
                   className="cover-preview-thumb"
                 />
               )}
@@ -669,8 +658,8 @@ export default function TeacherPage({ onNotify }) {
               <div className="upload-box-head">
                 <ImageIcon size={20} />
                 <div>
-                  <strong>صورة الغلاف الخلفي</strong>
-                  <small>اختياري — PNG أو JPG</small>
+                  <strong>Back Cover Image</strong>
+                  <small>Optional — PNG or JPG</small>
                 </div>
               </div>
 
@@ -690,7 +679,7 @@ export default function TeacherPage({ onNotify }) {
                   onClick={() => backCoverInputRef.current?.click()}
                 >
                   <ImageIcon size={16} />
-                  <span>{backCoverPreview ? 'تغيير الغلاف الخلفي' : 'رفع الغلاف الخلفي'}</span>
+                  <span>{backCoverPreview ? 'Change Back Cover' : 'Upload Back Cover'}</span>
                 </button>
 
                 {backCoverPreview && (
@@ -704,7 +693,7 @@ export default function TeacherPage({ onNotify }) {
                       if (backCoverInputRef.current) backCoverInputRef.current.value = '';
                     }}
                   >
-                    إزالة
+                    Remove
                   </button>
                 )}
               </div>
@@ -712,14 +701,13 @@ export default function TeacherPage({ onNotify }) {
               {backCoverPreview && (
                 <img
                   src={backCoverPreview}
-                  alt="معاينة الغلاف الخلفي"
+                  alt="Back cover preview"
                   className="cover-preview-thumb"
                 />
               )}
             </div>
           </div>
 
-          {/* 5. Quiz Question Builder */}
           <QuestionBuilder questions={questions} onChange={setQuestions} />
 
           {formError && (
@@ -740,12 +728,12 @@ export default function TeacherPage({ onNotify }) {
               {saving ? (
                 <>
                   <Loader2 size={18} className="spin" />
-                  <span>جاري الحفظ والرفع...</span>
+                  <span>Saving & Uploading...</span>
                 </>
               ) : (
                 <>
                   <Save size={18} />
-                  <span>{editingBook ? 'حفظ التعديلات على الكتاب' : 'إنشاء الكتاب'}</span>
+                  <span>{editingBook ? 'Save Book Changes' : 'Create Book'}</span>
                 </>
               )}
             </button>
@@ -753,120 +741,116 @@ export default function TeacherPage({ onNotify }) {
         </form>
       </section>
 
-      {/* Teacher's Books List */}
       <section className="teacher-books-section">
         <div className="section-header">
           <div>
-            <h2>قصصي المنشورة</h2>
-            <p className="muted">إدارة كتبك: عرض، تحميل، مشاركة، تعديل، أو حذف.</p>
+            <h2>My Published Books</h2>
+            <p className="muted">Manage your stories: view, download, share, edit, or delete.</p>
           </div>
-          <span className="count-badge">{books.length} كتاب</span>
+          <span className="count-badge">
+            {books.length} {books.length === 1 ? 'Book' : 'Books'}
+          </span>
         </div>
 
         {booksLoading ? (
           <div className="state-panel">
             <Loader2 size={28} className="spin" />
-            <p>جاري تحميل قائمة كتبك...</p>
+            <p>Loading your books...</p>
           </div>
         ) : books.length === 0 ? (
           <div className="state-panel">
-            <p>لم تقم بإنشاء أي كتب بعد. استخدم النموذج أعلاه لإضافة أول قصة تفاعلية.</p>
+            <p>You haven't created any books yet. Use the form above to publish your first interactive story.</p>
           </div>
         ) : (
           <div className="teacher-books-list">
-            {books.map((book) => (
-              <article key={book.id} className="teacher-book-row">
-                <div className="teacher-book-thumb">
-                  {book.cover_front_url ? (
-                    <img src={book.cover_front_url} alt={book.title} />
-                  ) : (
-                    <div className="thumb-fallback" dir="ltr">
-                      PDF
-                    </div>
-                  )}
-                </div>
-
-                <div className="teacher-book-info">
-                  <h3 dir="ltr" lang="en">
-                    {book.title}
-                  </h3>
-                  {book.description && (
-                    <p dir="ltr" lang="en" className="muted">
-                      {book.description}
-                    </p>
-                  )}
-                  <div className="book-card-meta">
-                    <span className="meta-chip">
-                      {(book.questions?.length ?? book.questionCount ?? 0)} سؤال
-                    </span>
-                    {book.audio_url && <span className="meta-chip">يحتوي على صوت</span>}
+            {books.map((book) => {
+              const qCount = book.questions?.length ?? book.questionCount ?? 0;
+              return (
+                <article key={book.id} className="teacher-book-row">
+                  <div className="teacher-book-thumb">
+                    {book.cover_front_url ? (
+                      <img src={book.cover_front_url} alt={book.title} />
+                    ) : (
+                      <div className="thumb-fallback">PDF</div>
+                    )}
                   </div>
-                </div>
 
-                <div className="teacher-book-actions">
-                  <Link to={`/book/${book.id}`} className="btn btn-primary btn-sm">
-                    <Eye size={15} />
-                    <span>عرض</span>
-                  </Link>
+                  <div className="teacher-book-info">
+                    <h3>{book.title}</h3>
+                    {book.description && <p className="muted">{book.description}</p>}
+                    <div className="book-card-meta">
+                      <span className="meta-chip">
+                        {qCount} {qCount === 1 ? 'Question' : 'Questions'}
+                      </span>
+                      {book.audio_url && <span className="meta-chip">Audio Included</span>}
+                    </div>
+                  </div>
 
-                  <button
-                    type="button"
-                    className="btn btn-outline btn-sm"
-                    onClick={() =>
-                      triggerFileDownload(book.pdf_url, `${book.title || 'story'}.pdf`)
-                    }
-                  >
-                    <Download size={15} />
-                    <span>تحميل PDF</span>
-                  </button>
+                  <div className="teacher-book-actions">
+                    <Link to={`/book/${book.id}`} className="btn btn-primary btn-sm">
+                      <Eye size={15} />
+                      <span>View</span>
+                    </Link>
 
-                  {book.audio_url && (
                     <button
                       type="button"
                       className="btn btn-outline btn-sm"
                       onClick={() =>
-                        triggerFileDownload(book.audio_url, `${book.title || 'audio'}.mp3`)
+                        triggerFileDownload(book.pdf_url, `${book.title || 'story'}.pdf`)
                       }
                     >
-                      <Music size={15} />
-                      <span>تحميل الصوت</span>
+                      <Download size={15} />
+                      <span>Download PDF</span>
                     </button>
-                  )}
 
-                  <button
-                    type="button"
-                    className="btn btn-outline btn-sm"
-                    onClick={() => setShareBook(book)}
-                  >
-                    <Share2 size={15} />
-                    <span>مشاركة</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    className="btn btn-soft btn-sm"
-                    onClick={() => handleStartEdit(book)}
-                  >
-                    <Pencil size={15} />
-                    <span>تعديل</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    className="btn btn-danger btn-sm"
-                    disabled={deletingId === book.id}
-                    onClick={() => handleDeleteBook(book)}
-                  >
-                    {deletingId === book.id ? (
-                      <Loader2 size={15} className="spin" />
-                    ) : (
-                      <Trash2 size={15} />
+                    {book.audio_url && (
+                      <button
+                        type="button"
+                        className="btn btn-outline btn-sm"
+                        onClick={() =>
+                          triggerFileDownload(book.audio_url, `${book.title || 'audio'}.mp3`)
+                        }
+                      >
+                        <Music size={15} />
+                        <span>Download Audio</span>
+                      </button>
                     )}
-                    <span>حذف</span>
-                  </button>
-                </div>
-              </article>
-            ))}
+
+                    <button
+                      type="button"
+                      className="btn btn-outline btn-sm"
+                      onClick={() => setShareBook(book)}
+                    >
+                      <Share2 size={15} />
+                      <span>Share</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      className="btn btn-soft btn-sm"
+                      onClick={() => handleStartEdit(book)}
+                    >
+                      <Pencil size={15} />
+                      <span>Edit</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      className="btn btn-danger btn-sm"
+                      disabled={deletingId === book.id}
+                      onClick={() => handleDeleteBook(book)}
+                    >
+                      {deletingId === book.id ? (
+                        <Loader2 size={15} className="spin" />
+                      ) : (
+                        <Trash2 size={15} />
+                      )}
+                      <span>Delete</span>
+                    </button>
+                  </div>
+                </article>
+              );
+            })}
           </div>
         )}
       </section>

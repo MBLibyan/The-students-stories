@@ -21,39 +21,39 @@ export const supabase = isSupabaseConfigured
   : null;
 
 export function translateSupabaseError(error) {
-  if (!error) return 'حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.';
+  if (!error) return 'An unexpected error occurred. Please try again.';
   const message = String(error.message || error.error_description || error).toLowerCase();
 
   if (message.includes('invalid login credentials')) {
-    return 'البريد الإلكتروني أو كلمة المرور غير صحيحة.';
+    return 'Incorrect email address or password.';
   }
   if (message.includes('email not confirmed')) {
-    return 'يرجى تأكيد بريدك الإلكتروني أولاً أو تفعيل الحساب من لوحة Supabase.';
+    return 'Please confirm your email address first or enable auto-confirm in Supabase.';
   }
   if (message.includes('user already registered')) {
-    return 'هذا البريد الإلكتروني مسجل مسبقاً.';
+    return 'This email address is already registered.';
   }
   if (message.includes('password should be at least')) {
-    return 'يجب أن تتكون كلمة المرور من 6 أحرف على الأقل.';
+    return 'Password must be at least 6 characters long.';
   }
   if (message.includes('row-level security') || message.includes('permission denied')) {
-    return 'ليس لديك صلاحية تنفيذ هذا الإجراء. تأكد من تسجيل الدخول بحساب المالك الصحيح وتطبيق سياسات الأمان في Supabase.';
+    return 'Permission denied. Make sure you are signed in as the book owner and RLS policies are applied in Supabase.';
   }
   if (message.includes('payload too large') || message.includes('exceeded the maximum allowed size')) {
-    return 'حجم الملف أكبر من الحد المسموح به في التخزين (الحد الأقصى 50 ميجابايت).';
+    return 'The uploaded file exceeds the maximum allowed size (50 MB).';
   }
   if (message.includes('bucket not found')) {
-    return 'حاويات التخزين (Buckets) غير موجودة في Supabase. تأكد من تشغيل ملف SQL في محرر الاستعلامات.';
+    return 'Storage buckets were not found in Supabase. Please run the SQL migration first.';
   }
   if (message.includes('relation') && message.includes('does not exist')) {
-    return 'جداول قاعدة البيانات غير موجودة بعد. يرجى تشغيل ملف الهجرة SQL داخل Supabase.';
+    return 'Database tables do not exist yet. Please run the SQL migration inside Supabase.';
   }
   if (message.includes('failed to fetch') || message.includes('networkerror')) {
-    return 'تعذر الاتصال بالخادم. تحقق من اتصال الإنترنت ومن صحة رابط Supabase.';
+    return 'Could not connect to the server. Please check your internet connection and Supabase URL.';
   }
   if (message.includes('jwt expired')) {
-    return 'انتهت صلاحية الجلسة. يرجى تسجيل الدخول مجدداً.';
+    return 'Your session has expired. Please sign in again.';
   }
 
-  return error.message || 'حدث خطأ أثناء تنفيذ العملية.';
+  return error.message || 'An error occurred while completing the request.';
 }

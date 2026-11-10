@@ -2,7 +2,6 @@ import { describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import App from '../App';
 
-// Mock pdfUtils so jsdom doesn't require canvas worker threads when rendering BookPage
 vi.mock('../lib/pdfUtils', () => ({
   inspectPdfFile: vi.fn().mockResolvedValue({ pageCount: 5, width: 595, height: 842, aspectRatio: 0.7 }),
   loadPdfDocument: vi.fn().mockResolvedValue({
@@ -17,14 +16,15 @@ vi.mock('../lib/pdfUtils', () => ({
 }));
 
 describe('App Routing & Core Pages', () => {
-  it('renders HomePage with Demo Mode story shelf', async () => {
+  it('renders HomePage in English with Demo Mode story shelf', async () => {
     window.history.pushState({}, '', '/');
     render(<App />);
 
     await waitFor(() => {
       expect(screen.getByText('The Lantern on the Harbour Wall')).toBeInTheDocument();
     });
-    expect(screen.getByText('لوحة المعلم')).toBeInTheDocument();
+    expect(screen.getAllByText('Teacher Portal').length).toBeGreaterThan(0);
+    expect(document.body.textContent).not.toMatch(/[\u0600-\u06FF]/);
   });
 
   it('renders TeacherPage login gate on /admin', async () => {
@@ -32,8 +32,9 @@ describe('App Routing & Core Pages', () => {
     render(<App />);
 
     await waitFor(() => {
-      expect(screen.getByText(/بوابة المعلم/)).toBeInTheDocument();
+      expect(screen.getByText(/Teacher Portal \(Admin\)/)).toBeInTheDocument();
     });
+    expect(document.body.textContent).not.toMatch(/[\u0600-\u06FF]/);
   });
 
   it('renders NotFoundPage on unknown routes', async () => {
@@ -41,7 +42,8 @@ describe('App Routing & Core Pages', () => {
     render(<App />);
 
     await waitFor(() => {
-      expect(screen.getByText('الصفحة غير موجودة')).toBeInTheDocument();
+      expect(screen.getByText('Page Not Found')).toBeInTheDocument();
     });
+    expect(document.body.textContent).not.toMatch(/[\u0600-\u06FF]/);
   });
 });

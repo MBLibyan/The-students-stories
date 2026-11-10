@@ -25,7 +25,7 @@ export default function HomePage() {
       const data = await listPublicBooks();
       setBooks(data);
     } catch (err) {
-      setError(err.message || 'تعذر تحميل قائمة القصص.');
+      setError(err.message || 'Unable to load the story library.');
     } finally {
       setLoading(false);
     }
@@ -42,23 +42,24 @@ export default function HomePage() {
         <div className="hero-content">
           <div className="hero-eyebrow">
             <Sparkles size={15} />
-            <span>قسم اللغة الإنجليزية — القراءة التفاعلية</span>
+            <span>English Department — Interactive Literature</span>
           </div>
-          <h1>قصص إنجليزية تفاعلية بتجربة كتاب حقيقي</h1>
+          <h1>Interactive English Stories with Realistic Page-Flipping</h1>
           <p>
-            اقرأ القصص الأدبية بتقليب صفحات واقعي، استمع إلى التسجيل الصوتي مع التحكم بالسرعة،
-            واختبر فهمك واستنتاجك عبر أسئلة سريعة فورية التصحيح في نهاية كل قصة.
+            Read literary short stories with realistic page turns, listen to synchronized
+            audio narration with variable playback speed, and test your comprehension and
+            inference skills with an instant Quick Check quiz at the end of each book.
           </p>
           <div className="hero-actions">
             {books[0] && (
               <Link to={`/book/${books[0].id}`} className="btn btn-primary">
                 <BookOpen size={18} />
-                <span>ابدأ قراءة أحدث قصة</span>
+                <span>Read Latest Story</span>
               </Link>
             )}
             <Link to="/admin" className="btn btn-outline">
               <GraduationCap size={18} />
-              <span>دخول المعلم وإدارة القصص</span>
+              <span>Teacher Portal</span>
             </Link>
           </div>
         </div>
@@ -66,7 +67,7 @@ export default function HomePage() {
         <div className="hero-visual" aria-hidden="true">
           <div className="hero-book-mockup">
             <div className="mockup-spine" />
-            <div className="mockup-cover" dir="ltr" lang="en">
+            <div className="mockup-cover">
               <span>ENGLISH LITERATURE</span>
               <strong>Storybook Flipbook</strong>
               <small>Read • Listen • Quick Check</small>
@@ -78,11 +79,11 @@ export default function HomePage() {
       {!isSupabaseConfigured && (
         <div className="notice-banner" role="note">
           <div>
-            <strong>وضع المعاينة التجريبية نشط حالياً</strong>
+            <strong>Demo Mode is currently active</strong>
             <p>
-              يتم عرض قصة تجريبية كاملة لتجربة تقليب الصفحات والصوت والاختبار مباشرة.
-              لربط قاعدة بياناتك الفعلية، أضف متغيرات <code>VITE_SUPABASE_URL</code> و
-              <code>VITE_SUPABASE_ANON_KEY</code> في إعدادات البيئة.
+              A full sample story is loaded so you can try page-flipping, audio speed controls,
+              and the Quick Check quiz right away. Connect your Supabase database by setting{' '}
+              <code>VITE_SUPABASE_URL</code> and <code>VITE_SUPABASE_ANON_KEY</code>.
             </p>
           </div>
         </div>
@@ -92,16 +93,18 @@ export default function HomePage() {
       <section className="library-section">
         <div className="section-header">
           <div>
-            <h2>القصص المتاحة للطلبة</h2>
-            <p className="muted">اختر أي قصة لفتحها مباشرة دون الحاجة لتسجيل الدخول.</p>
+            <h2>Available Student Stories</h2>
+            <p className="muted">Select any book to open and read immediately with no sign-in required.</p>
           </div>
-          <span className="count-badge">{books.length} قصة</span>
+          <span className="count-badge">
+            {books.length} {books.length === 1 ? 'Book' : 'Books'}
+          </span>
         </div>
 
         {loading && (
           <div className="state-panel">
             <Loader2 size={28} className="spin" />
-            <p>جاري تحميل القصص المتاحة...</p>
+            <p>Loading available stories...</p>
           </div>
         )}
 
@@ -111,7 +114,7 @@ export default function HomePage() {
             <p>{error}</p>
             <button type="button" className="btn btn-primary btn-sm" onClick={loadBooks}>
               <RotateCcw size={16} />
-              <span>إعادة المحاولة</span>
+              <span>Try Again</span>
             </button>
           </div>
         )}
@@ -119,9 +122,9 @@ export default function HomePage() {
         {!loading && !error && books.length === 0 && (
           <div className="state-panel">
             <BookOpen size={32} />
-            <p>لا توجد قصص منشورة بعد.</p>
+            <p>No stories have been published yet.</p>
             <Link to="/admin" className="btn btn-primary btn-sm">
-              إضافة أول قصة من لوحة المعلم
+              Publish Your First Story in Teacher Portal
             </Link>
           </div>
         )}
@@ -136,7 +139,7 @@ export default function HomePage() {
                     {book.cover_front_url ? (
                       <img src={book.cover_front_url} alt={book.title} loading="lazy" />
                     ) : (
-                      <div className="book-cover-placeholder" dir="ltr" lang="en">
+                      <div className="book-cover-placeholder">
                         <span>STORYBOOK</span>
                         <strong>{book.title}</strong>
                       </div>
@@ -144,32 +147,30 @@ export default function HomePage() {
                   </Link>
 
                   <div className="book-card-body">
-                    <h3 dir="ltr" lang="en">
+                    <h3>
                       <Link to={`/book/${book.id}`}>{book.title}</Link>
                     </h3>
 
                     {book.description && (
-                      <p className="book-card-desc" dir="ltr" lang="en">
-                        {book.description}
-                      </p>
+                      <p className="book-card-desc">{book.description}</p>
                     )}
 
                     <div className="book-card-meta">
                       {book.audio_url && (
                         <span className="meta-chip">
                           <Headphones size={14} />
-                          <span>ملف صوتي</span>
+                          <span>Audio Included</span>
                         </span>
                       )}
                       <span className="meta-chip">
                         <HelpCircle size={14} />
-                        <span>{qCount} سؤال تفاعلي</span>
+                        <span>{qCount} {qCount === 1 ? 'Question' : 'Questions'}</span>
                       </span>
                     </div>
 
                     <Link to={`/book/${book.id}`} className="btn btn-primary btn-block">
                       <BookOpen size={17} />
-                      <span>فتح الكتاب التفاعلي</span>
+                      <span>Open Flipbook</span>
                     </Link>
                   </div>
                 </article>

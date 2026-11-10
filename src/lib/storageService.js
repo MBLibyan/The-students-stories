@@ -19,7 +19,7 @@ function sanitizeFileName(name) {
 
 export async function uploadBookAsset({ bucket, userId, bookId, file, prefix }) {
   if (!isSupabaseConfigured || !supabase) {
-    throw new Error('لم يتم إعداد اتصال Supabase بعد.');
+    throw new Error('Supabase connection is not configured yet.');
   }
 
   const cleanName = sanitizeFileName(file.name);
@@ -39,7 +39,7 @@ export async function uploadBookAsset({ bucket, userId, bookId, file, prefix }) 
 
   const { data } = supabase.storage.from(bucket).getPublicUrl(objectPath);
   if (!data?.publicUrl) {
-    throw new Error('تم رفع الملف ولكن تعذر الحصول على الرابط العام.');
+    throw new Error('File uploaded, but failed to retrieve the public URL.');
   }
 
   return data.publicUrl;

@@ -19,7 +19,7 @@ export default function Toast({ toast, onDismiss }) {
         type="button"
         className="toast-close"
         onClick={onDismiss}
-        aria-label="إغلاق التنبيه"
+        aria-label="Close notification"
       >
         <X size={16} />
       </button>

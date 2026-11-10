@@ -36,8 +36,7 @@
   --radius-md: 14px;
   --radius-lg: 20px;
 
-  --font-ar: 'Cairo', system-ui, -apple-system, 'Segoe UI', Tahoma, Arial, sans-serif;
-  --font-en: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-en: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
   --font-serif: 'Merriweather', Georgia, 'Times New Roman', serif;
 }
 
@@ -84,7 +83,7 @@ body {
   padding: 0;
   background-color: var(--bg);
   color: var(--text);
-  font-family: var(--font-ar);
+  font-family: var(--font-en);
   line-height: 1.65;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
@@ -1588,7 +1587,7 @@ img {
   flex-direction: column;
   gap: 14px;
   margin-top: 18px;
-  text-align: right;
+  text-align: left;
 }
 
 .auth-footnote {
@@ -2094,7 +2093,7 @@ img {
 .toast {
   position: fixed;
   bottom: 20px;
-  left: 20px;
+  right: 20px;
   z-index: 120;
   background: var(--bg-elevated);
   color: var(--text);

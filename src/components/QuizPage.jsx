@@ -83,9 +83,9 @@ export default function QuizPage({ questions = [], bookTitle = '' }) {
           </div>
           <h3>Story Comprehension Quiz</h3>
         </div>
-        <div className="quiz-empty-state" dir="rtl" lang="ar">
-          <p>لم يضف المعلم أسئلة اختبار لهذه القصة بعد.</p>
-          <p className="muted">يمكنك الاستمتاع بقراءة القصة والاستماع للصوت.</p>
+        <div className="quiz-empty-state">
+          <p>No quiz questions have been added for this story yet.</p>
+          <p className="muted">Feel free to review the story pages and listen to the narration.</p>
         </div>
       </div>
     );
@@ -224,7 +224,7 @@ export default function QuizPage({ questions = [], bookTitle = '' }) {
                 setViewMode('single');
                 setShowSummaryInSingle(false);
               }}
-              title="عرض سؤال واحد في كل مرة"
+              title="Show one question at a time"
             >
               <SquareStack size={13} />
               <span>One by one</span>
@@ -233,7 +233,7 @@ export default function QuizPage({ questions = [], bookTitle = '' }) {
               type="button"
               className={`mode-chip ${viewMode === 'all' ? 'active' : ''}`}
               onClick={() => setViewMode('all')}
-              title="عرض كل الأسئلة معاً"
+              title="Show all questions together"
             >
               <ListChecks size={13} />
               <span>All ({total})</span>

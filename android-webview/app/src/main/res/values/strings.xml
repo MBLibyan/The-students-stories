@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Storybook Flipbook</string>
-    <!-- استبدل الرابط التالي برابط موقعك المنشور على Netlify -->
+    <!-- Replace the URL below with your live Netlify site URL -->
     <string name="app_url">https://YOUR-NETLIFY-SITE.netlify.app</string>
 </resources>

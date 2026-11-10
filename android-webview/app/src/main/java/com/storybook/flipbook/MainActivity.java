@@ -83,13 +83,12 @@ public class MainActivity extends AppCompatActivity {
                 String scheme = uri.getScheme() != null ? uri.getScheme().toLowerCase() : "";
                 String host = uri.getHost() != null ? uri.getHost().toLowerCase() : "";
 
-                // Open WhatsApp / external share intents outside the WebView
                 if ("whatsapp".equals(scheme) || "mailto".equals(scheme) || "tel".equals(scheme)
                         || host.contains("wa.me") || host.contains("api.whatsapp.com")) {
                     try {
                         startActivity(new Intent(Intent.ACTION_VIEW, uri));
                     } catch (ActivityNotFoundException e) {
-                        Toast.makeText(MainActivity.this, "التطبيق المطلوب غير مثبت على الجهاز", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, "The requested app is not installed on this device.", Toast.LENGTH_SHORT).show();
                     }
                     return true;
                 }
@@ -100,10 +99,10 @@ public class MainActivity extends AppCompatActivity {
             public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
                 if (request.isForMainFrame()) {
                     String safeUrl = targetUrl.replace("\"", "");
-                    String offlineHtml = "<html lang='ar' dir='rtl'><body style='font-family:sans-serif;text-align:center;padding:48px 20px;background:#FAF7F2;color:#1F2937;'>"
-                            + "<h2 style='color:#1E3A5F;'>تعذر تحميل التطبيق</h2>"
-                            + "<p style='color:#64748B;line-height:1.7;'>تحقق من اتصالك بالإنترنت ومن ضبط رابط الموقع الصحيح في <code>strings.xml</code>.</p>"
-                            + "<button onclick=\"window.location.href='" + safeUrl + "'\" style='background:#1E3A5F;color:#fff;border:none;border-radius:10px;padding:12px 24px;font-size:16px;'>إعادة المحاولة</button>"
+                    String offlineHtml = "<html lang='en' dir='ltr'><body style='font-family:sans-serif;text-align:center;padding:48px 20px;background:#FAF7F2;color:#1F2937;'>"
+                            + "<h2 style='color:#1E3A5F;'>Unable to Load Storybook Flipbook</h2>"
+                            + "<p style='color:#64748B;line-height:1.7;'>Please check your internet connection and verify the site URL in <code>strings.xml</code>.</p>"
+                            + "<button onclick=\"window.location.href='" + safeUrl + "'\" style='background:#1E3A5F;color:#fff;border:none;border-radius:10px;padding:12px 24px;font-size:16px;'>Try Again</button>"
                             + "</body></html>";
                     view.loadDataWithBaseURL(null, offlineHtml, "text/html", "UTF-8", null);
                 }
@@ -122,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
                     return true;
                 } catch (ActivityNotFoundException e) {
                     filePathCallback = null;
-                    Toast.makeText(MainActivity.this, "تعذر فتح منتقي الملفات", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "Unable to open file picker.", Toast.LENGTH_SHORT).show();
                     return false;
                 }
             }
@@ -158,7 +157,7 @@ public class MainActivity extends AppCompatActivity {
 
         webView.setDownloadListener((url, userAgent, contentDisposition, mimeType, contentLength) -> {
             if (url.startsWith("blob:") || url.startsWith("data:")) {
-                Toast.makeText(this, "لتحميل الملفات يرجى استخدام الرابط المباشر أو المتصفح", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Please open the direct download link in your browser.", Toast.LENGTH_SHORT).show();
                 return;
             }
             try {
@@ -175,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
                 DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
                 if (dm != null) {
                     dm.enqueue(req);
-                    Toast.makeText(this, "جاري تحميل الملف إلى مجلد التنزيلات...", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Downloading file to Downloads folder...", Toast.LENGTH_SHORT).show();
                 }
             } catch (Exception e) {
                 startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
