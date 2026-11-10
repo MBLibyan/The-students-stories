@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { supabase, isSupabaseConfigured, translateSupabaseError } from '../lib/supabase';
+import { resolveAuthEmail } from '../lib/authUtils';
 
 const AuthContext = createContext({
   user: null,
@@ -11,7 +12,8 @@ const AuthContext = createContext({
 
 const DEMO_USER = {
   id: 'demo-teacher',
-  email: 'teacher.demo@university.edu',
+  email: 'admin@storybook.local',
+  user_metadata: { username: 'admin' },
 };
 
 export function AuthProvider({ children }) {
@@ -56,14 +58,26 @@ export function AuthProvider({ children }) {
     };
   }, []);
 
-  const signIn = async (email, password) => {
+  const signIn = async (usernameOrEmail, password) => {
     if (!isSupabaseConfigured || !supabase) {
-      setUser(DEMO_USER);
-      return DEMO_USER;
+      const entered = String(usernameOrEmail || '').trim();
+      const demoAccount = entered
+        ? {
+            ...DEMO_USER,
+            user_metadata: { username: entered.split('@')[0] },
+          }
+        : DEMO_USER;
+      setUser(demoAccount);
+      return demoAccount;
+    }
+
+    const resolved = resolveAuthEmail(usernameOrEmail);
+    if (!resolved.valid) {
+      throw new Error(resolved.error);
     }
 
     const { data, error } = await supabase.auth.signInWithPassword({
-      email: email.trim(),
+      email: resolved.email,
       password,
     });
 

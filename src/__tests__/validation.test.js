@@ -10,6 +10,8 @@ import {
 } from '../lib/validation';
 import { getWhatsAppShareUrl } from '../lib/shareUtils';
 import { extractBucketAndPath } from '../lib/storageService';
+import { resolveAuthEmail, formatUserDisplayName } from '../lib/authUtils';
+import { translateSupabaseError } from '../lib/supabase';
 
 describe('File and Question Validation', () => {
   it('validates PDF files properly', () => {
@@ -95,5 +97,40 @@ describe('File and Question Validation', () => {
       bucket: 'story-pdfs',
       path: 'user-1/book-1/story.pdf',
     });
+  });
+
+  it('resolves admin usernames to internal Supabase emails and formats display names', () => {
+    expect(resolveAuthEmail('admin')).toEqual({
+      valid: true,
+      email: 'admin@storybook.local',
+      isUsername: true,
+      error: null,
+    });
+
+    expect(resolveAuthEmail('  Prof.Smith_01  ')).toEqual({
+      valid: true,
+      email: 'prof.smith_01@storybook.local',
+      isUsername: true,
+      error: null,
+    });
+
+    expect(resolveAuthEmail('teacher@university.edu')).toEqual({
+      valid: true,
+      email: 'teacher@university.edu',
+      isUsername: false,
+      error: null,
+    });
+
+    expect(resolveAuthEmail('bad user').valid).toBe(false);
+    expect(resolveAuthEmail('\u0623\u062f\u0645\u0646').valid).toBe(false);
+    expect(resolveAuthEmail('').valid).toBe(false);
+
+    expect(formatUserDisplayName({ email: 'admin@storybook.local' })).toBe('admin');
+    expect(formatUserDisplayName({ email: 'teacher@university.edu' })).toBe(
+      'teacher@university.edu'
+    );
+    expect(
+      translateSupabaseError({ message: 'Invalid login credentials' })
+    ).toBe('Incorrect username or password.');
   });
 });

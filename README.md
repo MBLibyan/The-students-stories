@@ -21,7 +21,8 @@ A mobile-first Progressive Web App (**PWA**) built for **university English-depa
 - **Download & Share:** Download the original story PDF and audio track, or share via Web Share API, Copy Link, and WhatsApp.
 - **Dark / Light Mode** and installable Android PWA (`manifest.json`, `sw.js`, icons).
 
-### Teacher Portal (`/admin` — Supabase Email/Password Login)
+### Teacher Portal (`/admin` — Supabase Username/Password Login)
+- Sign in cleanly with a **Username** (such as `admin`) and **Password**.
 - Upload story PDF (with automatic page-count verification).
 - Upload audio narration (MP3 / M4A / WAV) with inline preview.
 - Upload front cover and back cover images.
@@ -34,7 +35,10 @@ A mobile-first Progressive Web App (**PWA**) built for **university English-depa
 
 1. Create a standalone Supabase project for your English-department stories.
 2. Open **SQL Editor → New query**, paste the contents of `supabase/migrations/001_initial_schema.sql`, and click **Run**.
-3. Create a Teacher user under **Authentication → Users → Add user → Create new user** (enable **Auto Confirm User**).
+3. Create an Admin/Teacher user under **Authentication → Users → Add user → Create new user**:
+   - **Email:** `<username>@storybook.local` (for example, `admin@storybook.local` so you can sign in on `/admin` using just `admin`).
+   - **Password:** your chosen password.
+   - Enable **Auto Confirm User** before clicking **Create user**.
 4. Copy your **Project URL** and **anon public key** from **Project Settings → API**.
 
 ---

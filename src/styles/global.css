@@ -1714,6 +1714,12 @@ img {
   border-color: var(--primary);
 }
 
+.field-hint {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
 .uploads-grid {
   display: grid;
   grid-template-columns: 1fr;
